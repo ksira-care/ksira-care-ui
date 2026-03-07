@@ -1,0 +1,31 @@
+<section class="services-section">
+    <div class="services-header">
+        <div class="section-chip">OUR SERVICES</div>
+        <h2 class="section-title">Comprehensive Medical Services</h2>
+        <p class="section-subtitle">
+            From consultation to recovery, we provide end-to-end medical tourism services across all major
+            specializations.
+        </p>
+    </div>
+
+    <div class="services-grid">
+        @for (service of services; track service.title) {
+        <div class="service-card">
+            <div class="card-icon-wrapper" [ngClass]="service.iconColorClass">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path [attr.d]="service.iconPath"></path>
+                    <!-- Handle special SVG paths from our data that might have multiple instructions by injecting them as standard compound paths, or standard SVG -->
+                </svg>
+            </div>
+
+            <h3 class="card-title">{{service.title}}</h3>
+            <p class="card-description">{{service.description}}</p>
+
+            <a href="#" class="card-link" (click)="$event.preventDefault()">
+                Learn more &rarr;
+            </a>
+        </div>
+        }
+    </div>
+</section>

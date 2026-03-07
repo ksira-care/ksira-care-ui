@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+$primary-blue: #2392cc;
+$teal-icon: #29b8a3;
+$text-light: #ffffff;
+$text-dim: #d1d5db;
+
+.hero-section {
+    position: relative;
+    min-height: 85vh;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 80px 20px 60px;
+    background-image: url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2053&q=80');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    overflow: hidden;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(20, 30, 35, 0.85), rgba(35, 50, 55, 0.75));
+    z-index: 1;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    max-width: 800px;
+    margin-top: 40px;
+}
+
+.trusted-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    padding: 8px 16px;
+    border-radius: 40px;
+    color: $text-light;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 32px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    .shield-icon {
+        color: $teal-icon;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.hero-title {
+    color: $text-light;
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1.15;
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+
+    .highlight-blue {
+        color: $primary-blue;
+    }
+}
+
+.hero-subtitle {
+    color: #e5e7eb;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    max-width: 650px;
+    font-weight: 400;
+    margin-bottom: 40px;
+}
+
+.hero-services {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+
+    .service-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: $text-light;
+        font-size: 0.95rem;
+        font-weight: 500;
+
+        .service-icon {
+            color: $teal-icon;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(41, 184, 163, 0.1);
+            border: 1px solid rgba(41, 184, 163, 0.2);
+        }
+    }
+}
+
+.hero-stats {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    width: 100%;
+    max-width: 1100px;
+    margin-top: 80px;
+
+    .stat-card {
+        flex: 1;
+        min-width: 0;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        backdrop-filter: blur(16px);
+        border-radius: 16px;
+        padding: 24px 20px;
+        text-align: center;
+        transition: transform 0.3s ease, background 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+        &:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .stat-number {
+            color: $text-light;
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+            letter-spacing: -0.02em;
+        }
+
+        .stat-label {
+            color: #cdcfd3;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1rem;
+        padding: 0 15px;
+    }
+
+    .hero-services {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .hero-stats {
+        flex-wrap: wrap;
+        gap: 16px;
+
+        .stat-card {
+            min-width: calc(50% - 16px);
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-stats {
+        gap: 12px;
+
+        .stat-card {
+            min-width: 100%;
+        }
+    }
+}

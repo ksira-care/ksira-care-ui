@@ -1,0 +1,157 @@
+@use "sass:color";
+
+$bg-light: #f8fafc;
+$text-dark: #1f2937;
+$text-muted: #6b7280;
+$primary-blue: #2392cc;
+$chip-bg: #e0f2fe;
+$chip-text: #0284c7;
+
+$icon-rose-bg: #ffe4e6;
+$icon-rose-fg: #f43f5e;
+$icon-blue-bg: #e0f2fe;
+$icon-blue-fg: #3b82f6;
+$icon-teal-bg: #ccfbf1;
+$icon-teal-fg: #14b8a6;
+$icon-purple-bg: #f3e8ff;
+$icon-purple-fg: #a855f7;
+
+.services-section {
+    background-color: $bg-light;
+    padding: 80px 20px;
+    font-family: 'Inter', sans-serif;
+}
+
+.services-header {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.section-chip {
+    background-color: $chip-bg;
+    color: $chip-text;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    padding: 6px 16px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 24px;
+}
+
+.section-title {
+    color: $text-dark;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 16px;
+    letter-spacing: -0.01em;
+}
+
+.section-subtitle {
+    color: $text-muted;
+    font-size: 1.125rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.service-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+
+    &:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+}
+
+.card-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+
+    svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    &.text-rose {
+        background-color: $icon-rose-bg;
+        color: $icon-rose-fg;
+    }
+
+    &.text-blue {
+        background-color: $icon-blue-bg;
+        color: $icon-blue-fg;
+    }
+
+    &.text-teal {
+        background-color: $icon-teal-bg;
+        color: $icon-teal-fg;
+    }
+
+    &.text-purple {
+        background-color: $icon-purple-bg;
+        color: $icon-purple-fg;
+    }
+}
+
+.card-title {
+    color: $text-dark;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 12px;
+}
+
+.card-description {
+    color: $text-muted;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0 0 24px;
+    flex-grow: 1;
+}
+
+.card-link {
+    color: $primary-blue;
+    font-weight: 500;
+    font-size: 0.95rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: color 0.2s ease;
+
+    &:hover {
+        color: color.scale($primary-blue, $lightness: -15%);
+    }
+}
+
+@media (max-width: 768px) {
+    .section-title {
+        font-size: 2rem;
+    }
+
+    .services-section {
+        padding: 60px 20px;
+    }
+}

@@ -1,0 +1,178 @@
+/* Variables */
+$primary-color: #007bb5;
+$nav-bg: #ffffff;
+$text-color: #333333;
+$link-color: #636b74;
+$hover-color: $primary-color;
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: $nav-bg;
+    padding: 1rem 4rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .logo-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        background-color: $primary-color;
+        border-radius: 50%;
+        color: white;
+
+        svg {
+            width: 20px;
+            height: 20px;
+        }
+    }
+
+    a {
+        color: #333;
+        text-decoration: none;
+        font-size: 1.5rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+
+        .highlight {
+            color: $primary-color;
+            font-weight: 500;
+        }
+    }
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    gap: 2rem;
+
+    li {
+        margin: 0;
+    }
+
+    a {
+        color: $link-color;
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: color 0.3s ease;
+
+        &:hover {
+            color: $hover-color;
+        }
+    }
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.25rem;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .btn-outline {
+        background-color: transparent;
+        color: $primary-color;
+        border: 1px solid $primary-color;
+
+        svg {
+            fill: currentColor;
+        }
+
+        &:hover {
+            background-color: #e6f2f7;
+        }
+    }
+
+    .btn-solid {
+        background-color: $primary-color;
+        color: #fff;
+        border: 1px solid $primary-color;
+
+        &:hover {
+            background-color: #00608e;
+        }
+    }
+}
+
+/* Hamburger Menu Styling */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+
+    .bar {
+        width: 25px;
+        height: 3px;
+        background-color: #333;
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+    .navbar {
+        padding: 1rem 2rem;
+    }
+
+    .nav-links {
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 860px) {
+    .nav-actions {
+        display: none;
+    }
+
+    .nav-links {
+        display: none;
+        flex-direction: column;
+        width: 100%;
+        background-color: $nav-bg;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        padding: 1rem 0;
+        z-index: 100;
+
+        &.active {
+            display: flex;
+        }
+
+        li {
+            margin: 0.5rem 0;
+            text-align: center;
+        }
+    }
+
+    .menu-toggle {
+        display: flex;
+    }
+}
