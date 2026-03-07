@@ -1,14 +1,9 @@
 @use '../../../../styles/abstracts/mixins' as m;
-/* Variables */
-$primary-color: #007bb5;
-$nav-bg: #ffffff;
-$text-color: #333333;
-$link-color: #636b74;
-$hover-color: $primary-color;
+@use '../../../../styles/abstracts/colors' as c;
 
 .navbar {
     @include m.flex(row, space-between);
-    background-color: $nav-bg;
+    background-color: c.$color-white;
     padding: 1rem 4rem;
 
     .left-section {
@@ -24,19 +19,19 @@ $hover-color: $primary-color;
                 @include m.flex;
                 width: 36px;
                 height: 36px;
-                background-color: $primary-color;
+                background-color: c.$color-primary-navbar;
                 border-radius: 50%;
             }
 
             a {
-                color: #333;
+                color: c.$color-text-dark;
                 text-decoration: none;
                 font-size: 1.5rem;
                 font-weight: 800;
                 letter-spacing: -0.5px;
 
                 .highlight {
-                    color: $primary-color;
+                    color: c.$color-primary-navbar;
                     font-weight: 500;
                 }
             }
@@ -55,7 +50,7 @@ $hover-color: $primary-color;
             gap: 2rem;
 
             a {
-                color: $link-color;
+                color: c.$color-text-muted;
                 text-decoration: none;
                 font-size: 1rem;
                 font-weight: 600;
@@ -64,7 +59,7 @@ $hover-color: $primary-color;
                 transition: color 0.3s ease;
 
                 &:hover {
-                    color: $hover-color;
+                    color: c.$color-primary-navbar;
                 }
             }
         }
@@ -86,12 +81,12 @@ $hover-color: $primary-color;
         }
 
         .btn-solid {
-            background-color: $primary-color;
-            color: #fff;
-            border: 1px solid $primary-color;
+            background-color: c.$color-primary-navbar;
+            color: c.$color-white;
+            border: 1px solid c.$color-primary-navbar;
 
             &:hover {
-                background-color: #00608e;
+                background-color: c.$color-hover-button;
             }
         }
     }
@@ -107,7 +102,7 @@ $hover-color: $primary-color;
         .bar {
             width: 25px;
             height: 3px;
-            background-color: #333;
+            background-color: c.$color-text-dark;
             border-radius: 2px;
             transition: all 0.3s ease;
         }
@@ -125,7 +120,7 @@ $hover-color: $primary-color;
 
         .overlay {
             position: absolute;
-            background: rgba(0, 0, 0, 0.4);
+            background: c.$color-black;
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
             transition: 0.2s;
@@ -164,8 +159,8 @@ $hover-color: $primary-color;
             width: 70%;
             /* Takes up exactly 70% of screen */
             height: 100vh;
-            background-color: $nav-bg;
-            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            background-color: c.$color-white;
+            box-shadow: -2px 0 10px c.$color-black;
             /* Shadow adjusted for left side */
             z-index: 1000;
             transition: right 0.3s ease;
@@ -179,19 +174,19 @@ $hover-color: $primary-color;
             .mobile-menu-header {
                 @include m.flex(row, flex-end);
                 padding: 0 1.5rem 1rem 1.5rem;
-                border-bottom: 1px solid #eee;
+                border-bottom: 1px solid c.$color-border;
                 margin-bottom: 1rem;
 
                 .menu-close {
                     cursor: pointer;
-                    color: #333;
+                    color: c.$color-text-dark;
 
                     svg {
                         transition: stroke 0.2s ease;
                     }
 
                     &:hover svg {
-                        stroke: $primary-color;
+                        stroke: c.$color-primary-navbar;
                     }
                 }
             }
@@ -210,7 +205,7 @@ $hover-color: $primary-color;
                     font-size: 1.1rem;
 
                     &:hover {
-                        background-color: #fafafa;
+                        background-color: c.$color-background-hover;
                     }
                 }
             }

@@ -1,0 +1,34 @@
+// Common Colors (shared across sections)
+$color-white: #ffffff;
+$color-black: #000000;
+$color-primary-blue: #2392cc;
+$color-primary-navbar: #007bb5;
+$color-text-dark: #333333;
+$color-text-muted: #6b7280;
+$color-hover-button: #00608e;
+$color-background-hover: #fafafa;
+$color-border: #eeeeee;
+
+// Hero Section Colors
+$hero-primary-blue: $color-primary-blue;
+$hero-teal-icon: #29b8a3;
+$hero-text-light: $color-white;
+$hero-text-dim: #d1d5db;
+
+// Card Colors
+$card-background-light: #f8fafc;
+$card-text-dark: #1f2937;
+$card-text-muted: $color-text-muted;
+$card-primary-blue: $color-primary-blue;
+$card-chip-background: #e0f2fe;
+$card-chip-text: #0284c7;
+
+// Card Icon Colors
+$card-icon-rose-bg: #ffe4e6;
+$card-icon-rose-fg: #f43f5e;
+$card-icon-blue-bg: #e0f2fe;
+$card-icon-blue-fg: #3b82f6;
+$card-icon-teal-bg: #ccfbf1;
+$card-icon-teal-fg: #14b8a6;
+$card-icon-purple-bg: #f3e8ff;
+$card-icon-purple-fg: #a855f7;
