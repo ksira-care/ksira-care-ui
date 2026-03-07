@@ -1,0 +1,49 @@
+<header class="navbar">
+    <div class="left-section">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 22h20L12 2z" fill="white" />
+                    <path d="M12 7v10m-5-5h10" stroke="#007bb5" stroke-width="2" stroke-linecap="round" />
+                </svg>
+            </div>
+            <a href="/">Ksira<span class="highlight">Care</span></a>
+        </div>
+
+        <!-- Center Links -->
+        <div class="nav-links-container" [class.active]="isMenuOpen()">
+            <div class="mobile-menu-header">
+                <div class="menu-close" (click)="toggleNavbar()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="nav-links">
+                @for(link of navLinks; track link.label){
+                <a [routerLink]="link.route" (click)="toggleNavbar()">{{link.label}}</a>
+                }
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Right Actions -->
+    <div class="nav-actions">
+        <button class="btn btn-solid" type="button">Book Free Consultation</button>
+    </div>
+
+    <div class="overlay" [class.active]="isMenuOpen()" (click)="toggleNavbar()">
+    </div>
+    <!-- Mobile menu toggle -->
+    <div class="menu-toggle" [class.hidden]="isMenuOpen()" (click)="toggleNavbar()">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+    </div>
+
+</header>
