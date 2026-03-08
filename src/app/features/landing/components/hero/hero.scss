@@ -1,18 +1,12 @@
+@use '../../../../../styles/abstracts/mixins' as m;
+@use '../../../../../styles/abstracts/colors' as c;
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
-$primary-blue: #2392cc;
-$teal-icon: #29b8a3;
-$text-light: #ffffff;
-$text-dim: #d1d5db;
 
 .hero-section {
     position: relative;
     min-height: 85vh;
     font-family: 'Inter', sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
+    @include m.flex(column, space-between);
     padding: 80px 20px 60px;
     background-image: url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2053&q=80');
     background-size: cover;
@@ -27,16 +21,14 @@ $text-dim: #d1d5db;
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(20, 30, 35, 0.85), rgba(35, 50, 55, 0.75));
+    background: linear-gradient(135deg, rgba(c.$color-black, 0.85), rgba(c.$color-onyx, 0.75));
     z-index: 1;
 }
 
 .hero-content {
+    @include m.flex(column);
     position: relative;
     z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     text-align: center;
     max-width: 800px;
     margin-top: 40px;
@@ -46,27 +38,25 @@ $text-dim: #d1d5db;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(c.$color-white, 0.1);
+    border: 1px solid rgba(c.$color-white, 0.15);
     backdrop-filter: blur(8px);
     padding: 8px 16px;
     border-radius: 40px;
-    color: $text-light;
+    color: c.$color-white;
     font-size: 0.875rem;
     font-weight: 500;
     margin-bottom: 32px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(c.$color-black, 0.1);
 
     .shield-icon {
-        color: $teal-icon;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        @include m.flex;
+        color: c.$color-teal-icon;
     }
 }
 
 .hero-title {
-    color: $text-light;
+    color: c.$color-white;
     font-size: 4rem;
     font-weight: 700;
     line-height: 1.15;
@@ -74,12 +64,12 @@ $text-dim: #d1d5db;
     letter-spacing: -0.02em;
 
     .highlight-blue {
-        color: $primary-blue;
+        color: c.$color-primary-blue;
     }
 }
 
 .hero-subtitle {
-    color: #e5e7eb;
+    color: c.$color-white-marble;
     font-size: 1.125rem;
     line-height: 1.6;
     max-width: 650px;
@@ -88,41 +78,35 @@ $text-dim: #d1d5db;
 }
 
 .hero-services {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    @include m.flex;
     gap: 32px;
     margin-top: 10px;
     flex-wrap: wrap;
 
     .service-item {
-        display: flex;
-        align-items: center;
+        @include m.flex;
         gap: 10px;
-        color: $text-light;
+        color: c.$color-white;
         font-size: 0.95rem;
         font-weight: 500;
 
         .service-icon {
-            color: $teal-icon;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            @include m.flex;
+            color: c.$color-teal-icon;
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: rgba(41, 184, 163, 0.1);
-            border: 1px solid rgba(41, 184, 163, 0.2);
+            background: rgba(c.$color-teal-icon, 0.1);
+            border: 1px solid rgba(c.$color-teal-icon, 0.2);
         }
     }
 }
 
 .hero-stats {
+    @include m.flex;
     position: relative;
     z-index: 2;
-    display: flex;
     gap: 20px;
-    justify-content: center;
     width: 100%;
     max-width: 1100px;
     margin-top: 80px;
@@ -130,23 +114,23 @@ $text-dim: #d1d5db;
     .stat-card {
         flex: 1;
         min-width: 0;
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 255, 255, 0.07);
+        background: rgba(c.$color-white, 0.08);
+        border: 1px solid rgba(c.$color-white, 0.07);
         backdrop-filter: blur(16px);
         border-radius: 16px;
         padding: 24px 20px;
         text-align: center;
         transition: transform 0.3s ease, background 0.3s ease;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 10px 30px rgba(c.$color-black, 0.15);
 
         &:hover {
             transform: translateY(-5px);
-            background: rgba(255, 255, 255, 0.12);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(c.$color-white, 0.12);
+            border: 1px solid rgba(c.$color-white, 0.15);
         }
 
         .stat-number {
-            color: $text-light;
+            color: c.$color-white;
             font-size: 2.25rem;
             font-weight: 700;
             margin-bottom: 6px;
@@ -154,7 +138,7 @@ $text-dim: #d1d5db;
         }
 
         .stat-label {
-            color: #cdcfd3;
+            color: c.$color-silver-label;
             font-size: 0.875rem;
             font-weight: 500;
             text-transform: capitalize;
@@ -173,7 +157,7 @@ $text-dim: #d1d5db;
     }
 
     .hero-services {
-        flex-direction: column;
+        @include m.flex(column);
         gap: 16px;
     }
 
