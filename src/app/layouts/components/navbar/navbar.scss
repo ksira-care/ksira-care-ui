@@ -114,13 +114,17 @@
     .navbar {
         padding: 1rem 2rem;
 
-        .left-section .nav-links {
-            gap: 1rem;
+        .left-section {
+            gap: 0;
+
+            .nav-links {
+                gap: 1rem;
+            }
         }
 
         .overlay {
             position: absolute;
-            background: c.$color-black;
+            background: c.$overlay-color;
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
             transition: 0.2s;
