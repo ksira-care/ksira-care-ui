@@ -43,6 +43,10 @@
 
         .nav-links-container {
             @include m.flex(column, flex-start, normal);
+
+            .mobile-nav-actions {
+                display: none;
+            }
         }
 
         .nav-links {
@@ -210,6 +214,43 @@
 
                     &:hover {
                         background-color: c.$color-background-hover;
+                    }
+                }
+            }
+
+            .mobile-nav-actions {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                margin-top: auto;
+                padding: 1.5rem 10% 2.5rem 10%; // Added extra bottom padding to lift it up
+                box-sizing: border-box; // Ensures padding won't stretch element wider
+
+                .btn {
+                    width: 100%; // Make it fill the container respectfully 
+                    @include m.flex;
+                    padding: 0.85rem 1rem; // Reduced left/right padding to prevent text cutoff
+                    border-radius: 8px;
+                    font-size: 1.05rem; // Slightly smaller font to guarantee it fits
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    text-decoration: none;
+                    box-shadow: 0 8px 16px -4px rgba(0, 123, 181, 0.45);
+                    text-align: center;
+                    box-sizing: border-box; // Keep border additions within bounds
+                }
+
+                .btn-solid {
+                    background-color: c.$color-primary-navbar;
+                    color: c.$color-white;
+                    border: none;
+
+                    &:hover {
+                        background-color: c.$color-hover-button;
+                        box-shadow: 0 12px 20px -4px rgba(0, 123, 181, 0.55);
+                        transform: translateY(-2px);
                     }
                 }
             }

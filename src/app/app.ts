@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { Navbar } from './layouts/components/navbar/navbar';
 import { Hero } from './features/landing/components/hero/hero';
-import { Card } from './shared/components/card/card';
+import { Card } from './features/landing/components/card/card';
 
 @Component({
   selector: 'app-root',
