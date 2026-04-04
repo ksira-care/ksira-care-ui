@@ -1,0 +1,51 @@
+<div class="blog-details-container">
+    <div class="blog-details-wrapper" *ngIf="blog">
+        <a routerLink="/blogs" class="back-link">&larr; Back to Articles</a>
+        
+        <article class="article-card">
+            <!-- Article Header -->
+            <header class="article-header">
+                <div class="article-meta-top">
+                    <span class="category-badge">{{ blog.category }}</span>
+                    <span class="read-time">{{ blog.readTime }} min read</span>
+                </div>
+                
+                <h1 class="article-title">{{ blog.title }}</h1>
+                
+                <div class="article-author">
+                    <p>by <span class="author-name">{{ blog.author }}</span></p>
+                    <p class="publish-date">{{ blog.date }}</p>
+                </div>
+            </header>
+
+            <!-- Hero Image -->
+            <div class="hero-image-container">
+                <img *ngIf="blog.image" [src]="blog.image" [alt]="blog.title" class="hero-image">
+            </div>
+
+            <!-- Dynamic HTML Content -->
+            <div class="article-content" [innerHTML]="blog.content"></div>
+
+            <!-- Share Section -->
+            <footer class="article-footer">
+                <p class="share-text">Share this article</p>
+                <div class="social-links">
+                    <button class="social-btn">f</button>
+                    <button class="social-btn">X</button>
+                    <button class="social-btn">in</button>
+                    <button class="social-btn">🔗</button>
+                </div>
+            </footer>
+        </article>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+            <a routerLink="/blogs" class="btn-solid">&larr; Back to All Articles</a>
+        </div>
+    </div>
+    
+    <div class="blog-not-found" *ngIf="!blog">
+        <h2>Article not found</h2>
+        <a routerLink="/blogs" class="btn-solid">Return to Blog</a>
+    </div>
+</div>

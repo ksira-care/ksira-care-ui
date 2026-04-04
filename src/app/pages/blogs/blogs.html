@@ -5,7 +5,7 @@
     <main class="blog-main">
         <!-- Featured Blog Post Section -->
         <section class="featured-section" *ngIf="featuredPost">
-            <a class="featured-link">
+            <a class="featured-link" [routerLink]="['/blogs', featuredPost.slug]" style="cursor: pointer;">
                 <div class="featured-card">
                     <div class="featured-grid">
                         <!-- Featured Image -->
@@ -53,7 +53,7 @@
 
             <!-- Blog Grid -->
             <div class="blog-grid">
-                <article *ngFor="let post of regularPosts" class="blog-card">
+                <article *ngFor="let post of regularPosts" class="blog-card" [routerLink]="['/blogs', post.slug]">
                     <!-- Card Image -->
                     <div class="card-image-container">
                         <img *ngIf="post?.image; else cardPlaceholder" [src]="post?.image" [alt]="post.title"
