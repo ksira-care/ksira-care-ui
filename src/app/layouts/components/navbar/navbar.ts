@@ -43,6 +43,10 @@ export class Navbar implements OnDestroy {
     this.isMenuOpen.update(v => !v);
   }
 
+  closeMenu() {
+    this.isMenuOpen.set(false);
+  }
+
   openContactModal() {
     this.isContactModalOpen.set(true);
     // Auto-close menu if mobile menu is open

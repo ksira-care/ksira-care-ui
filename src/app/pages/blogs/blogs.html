@@ -10,8 +10,8 @@
                     <div class="featured-grid">
                         <!-- Featured Image -->
                         <div class="featured-image-container">
-                            <img *ngIf="featuredPost?.image; else noImageTemplate" [src]="featuredPost?.image"
-                                [alt]="featuredPost?.title" class="featured-image" />
+                            <img *ngIf="featuredPost.image; else noImageTemplate" [src]="featuredPost.image"
+                                [alt]="featuredPost.title" class="featured-image" />
                             <ng-template #noImageTemplate>
                                 <div class="featured-image-placeholder">
                                     <div class="placeholder-text">📰</div>
@@ -19,23 +19,23 @@
                             </ng-template>
 
                             <!-- Category Badge -->
-                            <span class="category-badge">{{ featuredPost?.category }}</span>
+                            <span class="category-badge">{{ featuredPost.category }}</span>
 
                             <!-- Read Time -->
                             <div class="read-time-badge">
-                                {{ featuredPost?.readTime }} min read
+                                {{ featuredPost.readTime }} min read
                             </div>
                         </div>
 
                         <!-- Featured Content -->
                         <div class="featured-content">
-                            <h1 class="featured-title">{{ featuredPost?.title }}</h1>
+                            <h1 class="featured-title">{{ featuredPost.title }}</h1>
 
                             <div class="featured-meta">
                                 <p class="author-date">
-                                    by <span class="author-name">{{ featuredPost?.author }}</span>
+                                    by <span class="author-name">{{ featuredPost.author }}</span>
                                 </p>
-                                <p class="publish-date">{{ featuredPost?.date }}</p>
+                                <p class="publish-date">{{ featuredPost.date }}</p>
                                 <div class="read-more">Read Full Article →</div>
                             </div>
                         </div>
