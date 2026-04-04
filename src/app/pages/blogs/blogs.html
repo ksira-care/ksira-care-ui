@@ -1,1 +1,95 @@
-<p>blogs works!</p>
+<!-- blog.component.html -->
+<div class="blog-container">
+    <!-- <app-navbar></app-navbar> -->
+
+    <main class="blog-main">
+        <!-- Featured Blog Post Section -->
+        <section class="featured-section" *ngIf="featuredPost">
+            <a class="featured-link">
+                <div class="featured-card">
+                    <div class="featured-grid">
+                        <!-- Featured Image -->
+                        <div class="featured-image-container">
+                            <img *ngIf="featuredPost?.image; else noImageTemplate" [src]="featuredPost?.image"
+                                [alt]="featuredPost?.title" class="featured-image" />
+                            <ng-template #noImageTemplate>
+                                <div class="featured-image-placeholder">
+                                    <div class="placeholder-text">📰</div>
+                                </div>
+                            </ng-template>
+
+                            <!-- Category Badge -->
+                            <span class="category-badge">{{ featuredPost?.category }}</span>
+
+                            <!-- Read Time -->
+                            <div class="read-time-badge">
+                                {{ featuredPost?.readTime }} min read
+                            </div>
+                        </div>
+
+                        <!-- Featured Content -->
+                        <div class="featured-content">
+                            <h1 class="featured-title">{{ featuredPost?.title }}</h1>
+
+                            <div class="featured-meta">
+                                <p class="author-date">
+                                    by <span class="author-name">{{ featuredPost?.author }}</span>
+                                </p>
+                                <p class="publish-date">{{ featuredPost?.date }}</p>
+                                <div class="read-more">Read Full Article →</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </section>
+
+        <!-- Blog Grid Section -->
+        <section class="blog-grid-section">
+            <div class="section-header">
+                <h2 class="section-title">Latest Articles</h2>
+                <p class="section-subtitle">Explore our comprehensive guides and insights about medical tourism</p>
+            </div>
+
+            <!-- Blog Grid -->
+            <div class="blog-grid">
+                <article *ngFor="let post of regularPosts" class="blog-card">
+                    <!-- Card Image -->
+                    <div class="card-image-container">
+                        <img *ngIf="post?.image; else cardPlaceholder" [src]="post?.image" [alt]="post.title"
+                            class="card-image" />
+                        <ng-template #cardPlaceholder>
+                            <div class="card-image-placeholder">
+                                <div class="placeholder-letter">{{ getImagePlaceholder(post.title) }}</div>
+                                <p class="no-image-text">No image</p>
+                            </div>
+                        </ng-template>
+
+                        <!-- Category Badge -->
+                        <span class="card-category-badge">{{ post.category }}</span>
+
+                        <!-- Read Time -->
+                        <span class="card-read-time">{{ post.readTime }}</span>
+                    </div>
+
+                    <!-- Card Content -->
+                    <div class="card-content">
+                        <h3 class="card-title">{{ post.title }}</h3>
+                        <p class="card-excerpt">{{ post.excerpt }}</p>
+
+                        <!-- Card Footer -->
+                        <div class="card-footer">
+                            <div class="card-meta">
+                                <p class="card-author">by {{ post.author }}</p>
+                                <p class="card-date">{{ post.date }}</p>
+                            </div>
+                            <span class="continue-reading">Continue Reading</span>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <!-- <app-footer></app-footer> -->
+</div>

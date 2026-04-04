@@ -5,6 +5,7 @@
     @include m.flex(row, space-between);
     background-color: c.$color-white;
     padding: 1rem 4rem;
+    border-bottom: 1px solid c.$color-border;
 
     .left-section {
         @include m.flex;

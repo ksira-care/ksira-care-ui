@@ -15,7 +15,7 @@ export const routes: Routes = [
     // },
     {
         path: 'blogs',
-        loadComponent: () => import('./pages/blogs/blogs').then(m => m.BlogsComponent)
+        loadComponent: () => import('./pages/blogs/blogs').then(m => m.BlogComponent)
     },
     // {
     //     path: 'contact',
