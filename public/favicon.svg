@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Mint green circle background -->
+  <circle cx="16" cy="16" r="16" fill="#c8ebd5"/>
+  <!-- Heart / love icon — solid dark forest green -->
+  <path
+    d="M16 23
+       C16 23 8.5 18.2 8.5 13.5
+       A4.5 4.5 0 0 1 16 11.3
+       A4.5 4.5 0 0 1 23.5 13.5
+       C23.5 18.2 16 23 16 23Z"
+    fill="#1f4d35"
+  />
+</svg>
