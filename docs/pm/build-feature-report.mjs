@@ -171,24 +171,33 @@ function featureSection(feature, index) {
       heading('Result', HeadingLevel.HEADING_2),
       ...feature.result.map((r) => bullet([text(r)])),
 
-      heading('Decisions taken', HeadingLevel.HEADING_2),
-      table(
-        [
-          { label: 'Decision', width: 4026 },
-          { label: 'Why', width: 5000 },
-        ],
-        feature.decisions.map((d) => [d.decision, d.reason]),
-      ),
+      // Sections with nothing in them are left out rather than shown as empty tables.
+      ...(feature.decisions.length
+        ? [
+            heading('Decisions taken', HeadingLevel.HEADING_2),
+            table(
+              [
+                { label: 'Decision', width: 4026 },
+                { label: 'Why', width: 5000 },
+              ],
+              feature.decisions.map((d) => [d.decision, d.reason]),
+            ),
+          ]
+        : []),
 
-      heading('Open items', HeadingLevel.HEADING_2),
-      table(
-        [
-          { label: 'Item', width: 4326 },
-          { label: 'Owner', width: 1500 },
-          { label: 'Why it matters', width: 3200 },
-        ],
-        feature.openItems.map((o) => [o.item, o.owner, o.impact]),
-      ),
+      ...(feature.openItems.length
+        ? [
+            heading('Open items', HeadingLevel.HEADING_2),
+            table(
+              [
+                { label: 'Item', width: 4326 },
+                { label: 'Owner', width: 1500 },
+                { label: 'Why it matters', width: 3200 },
+              ],
+              feature.openItems.map((o) => [o.item, o.owner, o.impact]),
+            ),
+          ]
+        : []),
 
       heading('How to try it', HeadingLevel.HEADING_2),
       ...feature.demo.map((step) => numbered(demoList, step)),

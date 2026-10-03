@@ -14,7 +14,7 @@ export const report = {
     {
       id: 'F1',
       name: 'Therapist sign-in',
-      status: 'Built — real API connection ready, waiting on backend',
+      status: 'Built — connected to the backend, ready to deploy',
       date: '3 October 2026',
       summary:
         'Therapists can sign in to a private portal with the email and password an admin set up for them.',
@@ -109,36 +109,6 @@ export const report = {
       ],
 
       openItems: [
-        {
-          item: 'Send the session as a secure (httpOnly) cookie instead of in the response body — agreed by backend',
-          owner: 'Backend',
-          impact: 'Keeps the login session out of reach of malicious scripts.',
-        },
-        {
-          item: 'Build the sign-out endpoint (POST /api/auth/logout) — spec shared',
-          owner: 'Backend',
-          impact: 'Only the server can clear the secure cookie; without it, “Sign out” would not truly sign the therapist out.',
-        },
-        {
-          item: 'Make the profile endpoint identify the therapist from the session (GET /api/profile, no ID in the URL) and include the name',
-          owner: 'Backend',
-          impact: 'Lets the portal remember a signed-in therapist across page refreshes, and prevents one therapist viewing another’s profile.',
-        },
-        {
-          item: 'Store passwords with Argon2id or bcrypt, return the same error for unknown email and wrong password, and limit repeated failed sign-ins',
-          owner: 'Backend',
-          impact: 'Core security protections live on the server.',
-        },
-        {
-          item: 'Use the agreed error format (standard “Problem Details” with a code such as INVALID_CREDENTIALS)',
-          owner: 'Backend',
-          impact: 'Lets the portal show the right message for each problem.',
-        },
-        {
-          item: 'Serve the API from ksiracare.com/api (preferred) or api.ksiracare.com — not ksira-care.com',
-          owner: 'Backend / DevOps',
-          impact: 'Blocker: the website is on ksiracare.com. If the API stays on ksira-care.com, Safari (all iPhones and Macs) blocks the login cookie and therapists cannot sign in. The server itself can stay where it is; only its public address changes.',
-        },
       ],
 
       demo: [
@@ -152,7 +122,7 @@ export const report = {
     {
       id: 'F2',
       name: 'Therapist dashboard',
-      status: 'Built — real API connection ready, waiting on backend',
+      status: 'Built — connected to the backend, ready to deploy',
       date: '3 October 2026',
       summary:
         'After signing in, therapists see their next session, today’s schedule and their totals — all on one screen.',
@@ -277,16 +247,6 @@ export const report = {
       ],
 
       openItems: [
-        {
-          item: 'Build the dashboard summary endpoint (GET /api/therapists/me/dashboard-summary) — revised spec shared; must use “me” (from the session), not a therapist ID in the URL',
-          owner: 'Backend',
-          impact: 'Needed to show real figures. An ID in the URL breaks on page refresh and would let therapists see each other’s numbers.',
-        },
-        {
-          item: 'Dashboard summary only needs completedThisMonth, completedAllTime and (optionally) activeSince — the “today” count is no longer used',
-          owner: 'Backend',
-          impact: 'Simpler endpoint. activeSince shows “Since Jan 2025” under the all-time total; without it the card says “Across all your sessions”.',
-        },
       ],
 
       demo: [
@@ -298,7 +258,7 @@ export const report = {
     {
       id: 'F3',
       name: 'Bookings — marking sessions',
-      status: 'Built — real API connection ready, waiting on backend',
+      status: 'Built — connected to the backend, ready to deploy',
       date: '3 October 2026',
       summary:
         'Therapists mark each session as complete or “client didn’t join”, from a list of today’s sessions plus anything they forgot to mark.',
@@ -379,21 +339,6 @@ export const report = {
       ],
 
       openItems: [
-        {
-          item: 'New endpoint to mark a session: PATCH /api/bookings/{bookingId} with { bookingStatus: COMPLETED | CLIENT_NO_SHOW | PENDING } (PENDING = undo)',
-          owner: 'Backend',
-          impact: 'Needed for Mark complete, Client didn’t join and Undo to work for real. Only the therapist’s own bookings, only once the session has started; undo (PENDING) only on the same day (IST) the mark was made; therapists can never set THERAPIST_NO_SHOW.',
-        },
-        {
-          item: 'Add to the bookings response: assignedAt, rescheduledFrom, rescheduleNote, markedAt',
-          owner: 'Backend',
-          impact: 'Shows “assigned by admin on …”, reschedule details, and whether a mark can still be undone today; each is hidden until the field is provided.',
-        },
-        {
-          item: 'Bookings API: serve at ksiracare.com/api/bookings, scoped to the signed-in therapist; confirm epoch milliseconds; underscores in statuses',
-          owner: 'Backend',
-          impact: 'Same domain and security points as sign-in.',
-        },
       ],
 
       demo: [
@@ -407,7 +352,7 @@ export const report = {
     {
       id: 'F4',
       name: 'Availability',
-      status: 'Built — real API connection ready, waiting on backend',
+      status: 'Built — connected to the backend, ready to deploy',
       date: '3 October 2026',
       summary:
         'Therapists choose which hours clients can book, up to 60 days ahead, and save all their changes in one go.',
@@ -480,26 +425,6 @@ export const report = {
       ],
 
       openItems: [
-        {
-          item: 'Slots API: use the session to identify the therapist (e.g. /api/therapists/me/slots) instead of ?therapistId= in the URL',
-          owner: 'Backend',
-          impact: 'Otherwise a therapist could read or change another therapist’s availability by editing the URL.',
-        },
-        {
-          item: 'Confirm: does GET return every hour, or only hours with a record? Does POST update only the hours sent, or replace the whole range?',
-          owner: 'Backend',
-          impact: 'The portal sends only changed hours. If POST replaces the range, unsent hours could be wiped.',
-        },
-        {
-          item: 'Reject changes to booked hours with a 409 Conflict',
-          owner: 'Backend',
-          impact: 'Prevents a booked session being cancelled if it was booked while the therapist was editing; the portal already explains this to the therapist.',
-        },
-        {
-          item: 'Fix the status spelling THERAPIST_UNVAILABLE → THERAPIST_UNAVAILABLE; confirm time is epoch milliseconds',
-          owner: 'Backend',
-          impact: 'The portal accepts both spellings for now.',
-        },
       ],
 
       demo: [
@@ -512,7 +437,7 @@ export const report = {
     {
       id: 'F5',
       name: 'Profile',
-      status: 'Built — real API connection ready, waiting on backend',
+      status: 'Built — connected to the backend, ready to deploy',
       date: '3 October 2026',
       summary:
         'Therapists can see the personal details Ksira Care holds about them: name, email, phone, date of birth, languages and address.',
@@ -566,16 +491,108 @@ export const report = {
       ],
 
       openItems: [
-        {
-          item: 'Profile API: GET /api/therapists/me (from the session, no id in the URL) with firstName, middleName, lastName, email, phone (E.164), dateOfBirth (YYYY-MM-DD), languages (ISO codes) and a structured address',
-          owner: 'Backend',
-          impact: 'Feeds this page and the name shown across the portal. Date of birth is new; it wasn’t in the first API draft.',
-        },
       ],
 
       demo: [
         'Sign in, then open the “Profile” tab (or “Your profile” in the account menu).',
         'Press “Show” next to the phone number to reveal it.',
+      ],
+    },
+    {
+      id: 'F6',
+      name: 'Backend for the therapist portal',
+      status: 'Built and tested — ready to deploy',
+      date: '3 October 2026',
+      summary:
+        'The server behind the portal — sign-in, bookings, availability, profile and dashboard numbers — with every rule enforced on the server, not just in the browser.',
+
+      situation: [
+        'The backend team had built first versions of sign-in, profile, bookings and opening hours. Several didn’t match what the portal needs (for example, opening hours were checked in UK time rather than India time, and there was no sign-out or dashboard data), and a few security gaps needed closing before going live.',
+      ],
+
+      actions: [
+        {
+          title: 'Secure sign-in sessions',
+          detail:
+            'The session is kept in a secure cookie that page scripts can’t read, lasts 2 hours, and is cleared on sign-out. The signing key is no longer in the (public) code; production must provide its own.',
+        },
+        {
+          title: 'Every request tied to the signed-in therapist',
+          detail:
+            'Previously a therapist ID in the web address decided whose data was shown, so one therapist could have viewed or changed another’s bookings, hours or profile. Now the server always uses the signed-in therapist.',
+        },
+        {
+          title: 'Sign-in protections',
+          detail:
+            'The same message for an unknown email and a wrong password (so accounts can’t be discovered), a pause after 5 failed attempts in 15 minutes, and deactivating an account takes effect immediately.',
+        },
+        {
+          title: 'The portal’s rules enforced on the server',
+          detail:
+            'Sessions can only be marked once they’ve started; undo only until midnight; therapist no-shows only by admin; hours only 09:00–23:00 IST, not in the past and within 60 days; booked hours locked; cancelled sessions hidden.',
+        },
+        {
+          title: 'India time throughout',
+          detail: '“Today”, “this month” and opening hours all follow IST, matching what therapists see.',
+        },
+        {
+          title: 'Ready for production',
+          detail:
+            'Database changes are versioned (so production can be upgraded safely), production settings come from the hosting environment, and demo data exists only on developer machines.',
+        },
+        {
+          title: 'Tested end to end',
+          detail:
+            '40 automated checks on the server, plus the full portal clicked through against the real backend: sign-in, dashboard, marking sessions, saving hours and the profile.',
+        },
+      ],
+
+      result: [
+        'The portal works end to end with the real backend.',
+        'Once hosting is set up (below), the live site can switch from test data to real data with no further code changes.',
+      ],
+
+      decisions: [
+        {
+          decision: 'Cancelled sessions are not shown to therapists',
+          reason: 'They need no action; showing them would add noise.',
+        },
+        {
+          decision: 'Client country and session fee are no longer sent to the portal',
+          reason: 'Neither is shown (country was dropped; payouts are out of scope), and not sending data that isn’t needed protects client privacy. Both stay in the database.',
+        },
+        {
+          decision: 'PostgreSQL in production, with versioned database changes',
+          reason: 'Safe, repeatable upgrades instead of the database changing itself automatically.',
+        },
+      ],
+
+      openItems: [
+        {
+          item: 'Host the API at ksiracare.com/api behind the website (same domain)',
+          owner: 'DevOps',
+          impact: 'Blocker for launch: on a different domain (e.g. ksira-care.com), Safari blocks the sign-in cookie.',
+        },
+        {
+          item: 'Provision PostgreSQL and set the production settings, including a newly generated signing key',
+          owner: 'DevOps',
+          impact: 'The server won’t start in production without them — by design.',
+        },
+        {
+          item: 'Give admins a safe way to add therapists (passwords must be stored hashed, never as plain text)',
+          owner: 'Backend / Ops',
+          impact: 'Admins add therapists directly to the database today; a small admin script or tool avoids mistakes.',
+        },
+        {
+          item: 'Admin tools for assigning, rescheduling and cancelling bookings and recording therapist no-shows',
+          owner: 'Product / Backend',
+          impact: 'The portal reads this data but doesn’t create it.',
+        },
+      ],
+
+      demo: [
+        'Developers: start the backend, then run the portal with `npm run start:api`.',
+        'Sign in with therapist@ksiracare.com / password123 — everything you see now comes from the real server.',
       ],
     },
   ],
@@ -742,6 +759,10 @@ export const report = {
     {
       date: '3 October 2026',
       entry: 'Product answered Q1–Q8. Changes: Undo on today’s marks until midnight; Completed tab shows the whole current month. Profile confirmed read-only; Payouts and weekly repeat out of scope.',
+    },
+    {
+      date: '3 October 2026',
+      entry: 'F6 Backend aligned with the portal and tested end to end: secure cookie sessions, data scoped to the signed-in therapist, sign-in protections, rules enforced on the server, IST throughout. All features now connected to the backend; hosting and database setup remain.',
     },
   ],
 };

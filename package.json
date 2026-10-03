@@ -7,7 +7,8 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "docs:pm": "node docs/pm/build-feature-report.mjs"
+    "docs:pm": "node docs/pm/build-feature-report.mjs",
+    "start:api": "ng serve --configuration api"
   },
   "private": true,
   "packageManager": "npm@10.9.8",
