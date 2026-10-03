@@ -501,7 +501,7 @@ export const report = {
     {
       id: 'F6',
       name: 'Backend for the therapist portal',
-      status: 'Built and tested — ready to deploy',
+      status: 'Built and tested — hosting set up, accounts to be created',
       date: '3 October 2026',
       summary:
         'The server behind the portal — sign-in, bookings, availability, profile and dashboard numbers — with every rule enforced on the server, not just in the browser.',
@@ -541,9 +541,14 @@ export const report = {
             'Database changes are versioned (so production can be upgraded safely), production settings come from the hosting environment, and demo data exists only on developer machines.',
         },
         {
+          title: 'Hosting chosen and configured (free tiers)',
+          detail:
+            'Website on Netlify, server on Render, database on Neon — all in Singapore, closest to India. The website forwards ksiracare.com/api to the server, so sign-in works in every browser including Safari. The project files for all three are ready; what remains is creating the accounts and pasting in the settings.',
+        },
+        {
           title: 'Tested end to end',
           detail:
-            '40 automated checks on the server, plus the full portal clicked through against the real backend: sign-in, dashboard, marking sessions, saving hours and the profile.',
+            '53 automated checks on the server, plus the full portal clicked through against the real backend: sign-in, dashboard, marking sessions, saving hours and the profile.',
         },
       ],
 
@@ -562,6 +567,14 @@ export const report = {
           reason: 'Neither is shown (country was dropped; payouts are out of scope), and not sending data that isn’t needed protects client privacy. Both stay in the database.',
         },
         {
+          decision: 'Netlify instead of Vercel for the website',
+          reason: 'Vercel’s free plan doesn’t allow commercial sites, and Ksira Care takes paid bookings. Netlify’s free plan does, and works the same way.',
+        },
+        {
+          decision: 'Free hosting tiers to start',
+          reason: 'No cost while usage is low. Trade-off: after about 15 minutes with no visitors the server sleeps, and the next sign-in can take up to a minute. A paid Render plan (about $7/month) removes this.',
+        },
+        {
           decision: 'PostgreSQL in production, with versioned database changes',
           reason: 'Safe, repeatable upgrades instead of the database changing itself automatically.',
         },
@@ -569,19 +582,19 @@ export const report = {
 
       openItems: [
         {
-          item: 'Host the API at ksiracare.com/api behind the website (same domain)',
+          item: 'Create the Neon, Render and Netlify accounts and enter the production settings (database details and a newly generated signing key)',
           owner: 'DevOps',
-          impact: 'Blocker for launch: on a different domain (e.g. ksira-care.com), Safari blocks the sign-in cookie.',
+          impact: 'Blocker for launch. Step-by-step instructions are in the backend README; the server won’t start without the settings — by design.',
         },
         {
-          item: 'Provision PostgreSQL and set the production settings, including a newly generated signing key',
+          item: 'Point ksiracare.com at Netlify',
           owner: 'DevOps',
-          impact: 'The server won’t start in production without them — by design.',
+          impact: 'Blocker for launch: sign-in only works when the site and server share the ksiracare.com address.',
         },
         {
-          item: 'Give admins a safe way to add therapists (passwords must be stored hashed, never as plain text)',
-          owner: 'Backend / Ops',
-          impact: 'Admins add therapists directly to the database today; a small admin script or tool avoids mistakes.',
+          item: 'Add the first real therapists',
+          owner: 'Ops',
+          impact: 'The live database starts empty. Admins add therapists with a ready-made database command that stores passwords safely (hashed); a friendlier admin tool can come later.',
         },
         {
           item: 'Admin tools for assigning, rescheduling and cancelling bookings and recording therapist no-shows',
@@ -763,6 +776,10 @@ export const report = {
     {
       date: '3 October 2026',
       entry: 'F6 Backend aligned with the portal and tested end to end: secure cookie sessions, data scoped to the signed-in therapist, sign-in protections, rules enforced on the server, IST throughout. All features now connected to the backend; hosting and database setup remain.',
+    },
+    {
+      date: '3 October 2026',
+      entry: 'F6 Hosting: Netlify (website) + Render (server) + Neon (database), free tiers, Singapore. Vercel dropped — its free plan bars commercial use. Health check added for the host; instructions for adding therapists written. Remaining: create the accounts and point the domain.',
     },
   ],
 };
