@@ -22,16 +22,18 @@ interface Topic { label: string; }
           <!-- Bordered pill eyebrow — matches Lovable exactly -->
           <div class="hero__eyebrow" aria-hidden="true">
             <span class="hero__eyebrow-dot"></span>
-            Supportive listening, not therapy
+            Someone to talk to, any day
           </div>
 
           <h1 id="hero-heading" class="hero__title">
-            Someone to truly listen — when you need it most.
+            Someone to truly listen — whenever you feel like talking.
           </h1>
 
           <p class="hero__body">
-            Ksira Care offers calm, one-to-one sessions where you can talk
-            openly and be heard. No advice. No judgment. Just presence.
+            Ksira Care offers calm, one-to-one conversations with a listening
+            companion. A rough day, a happy one, or something in between —
+            talk openly and be heard. No judgement. Just respect, and someone
+            who's fully there.
           </p>
 
           <div class="hero__actions">
@@ -48,7 +50,7 @@ interface Topic { label: string; }
             <span class="hero__dot" aria-hidden="true"></span>
             Worldwide
             <span class="hero__dot" aria-hidden="true"></span>
-            Confidential
+            Private, never recorded
           </p>
         </div>
 
@@ -66,7 +68,7 @@ interface Topic { label: string; }
                 </svg>
               </span>
               <div class="hero__sub-text">
-                <p class="hero__sub-title">A safe conversation</p>
+                <p class="hero__sub-title">A conversation that's all yours</p>
                 <p class="hero__sub-meta">60 minutes, just for you</p>
                 <p class="hero__quote">"Take your time. I'm here."</p>
               </div>
@@ -106,11 +108,12 @@ interface Topic { label: string; }
       <div class="container topics-inner">
         <div class="topics-copy">
           <h2 id="topics-heading" class="topics-title">
-            Whatever's weighing on you.
+            Whatever's on your mind.
           </h2>
           <p class="topics-body">
-            Some days are heavier than others. You don't need a reason or a
-            diagnosis to want to be heard.
+            Some days you need to vent. Some days you have good news and no
+            one to tell. Some days you just want someone to talk to. You don't
+            need a reason to want to be heard.
           </p>
         </div>
 
@@ -131,14 +134,14 @@ interface Topic { label: string; }
         <p class="pricing-sub">One session, one price. No subscriptions.</p>
 
         <div class="pricing-card">
-          <p class="pricing-price" aria-label="30 US dollars">
-            <span class="pricing-dollar" aria-hidden="true">$</span>30
+          <p class="pricing-price" aria-label="899 rupees">
+            <span class="pricing-dollar" aria-hidden="true">₹</span>899
           </p>
           <p class="pricing-unit">per 60-minute session</p>
           <a routerLink="/book" class="btn btn-primary pricing-cta">Book Now</a>
           <p class="pricing-note">
-            Ksira Care offers supportive listening, not therapy or medical care.
-            If you're in crisis, please contact local emergency services.
+            We'll only ever email you your booking confirmation and session link.
+            Nothing else.
           </p>
         </div>
       </div>
@@ -427,12 +430,11 @@ interface Topic { label: string; }
     }
 
     /* 2-column grid of white rounded-rect items */
+    /* Pills flow like words in a sentence, wrapping as needed. */
     .topics-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-
-      @media (max-width: 400px) { grid-template-columns: 1fr; }
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.625rem;
     }
 
     .topic-item {
@@ -534,21 +536,22 @@ interface Topic { label: string; }
 export class HomeComponent {
   protected readonly steps: Step[] = [
     { number: '01', title: 'Book',
-      body: 'Pick a time that works in your zone. Pay upfront, no surprises.' },
+      body: 'Pick a time that works in your zone. No sign-up, no account. Pay upfront, no surprises.' },
     { number: '02', title: 'Connect',
-      body: 'Join a private session at your scheduled time, from anywhere.' },
+      body: 'Join your private session at your scheduled time, from anywhere.' },
     { number: '03', title: 'Talk & be heard',
-      body: "Share what's on your mind. You set the pace — we just listen." },
+      body: "Share whatever's on your mind. You set the pace — your listening companion listens." },
   ];
 
   protected readonly topics: Topic[] = [
-    { label: 'Loneliness'             },
-    { label: 'Work burnout'           },
-    { label: 'Stress'                 },
-    { label: 'Grief'                  },
-    { label: 'Breakups'               },
-    { label: 'Feeling isolated abroad'},
-    { label: 'Anxious thoughts'       },
-    { label: 'Just needing to vent'   },
+    { label: 'A rough day'                       },
+    { label: 'Good news to share'                },
+    { label: 'Work stuff'                        },
+    { label: 'Feeling lonely'                    },
+    { label: 'Missing home'                      },
+    { label: 'Family & relationships'            },
+    { label: 'Overthinking'                      },
+    { label: "Something you've never told anyone" },
+    { label: 'Just wanting to talk'              },
   ];
 }

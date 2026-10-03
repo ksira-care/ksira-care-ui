@@ -98,8 +98,8 @@ let _shownThisLoad = false;
       <!-- Sub-copy -->
       <p id="popup-desc" class="popup__desc">
         We're putting the finishing touches on Ksira Care.
-        Calm, one-to-one sessions where you can talk
-        openly, without advice or judgment. Just presence.
+        Calm, one-to-one conversations with a listening companion —
+        on good days, hard days, and everything in between.
       </p>
 
       <!-- Info card -->
@@ -120,7 +120,7 @@ let _shownThisLoad = false;
 
       <!-- Footer meta -->
       <p class="popup__meta" aria-hidden="true">
-        60-minute sessions&nbsp;&nbsp;·&nbsp;&nbsp;Worldwide&nbsp;&nbsp;·&nbsp;&nbsp;Confidential
+        60-minute sessions&nbsp;&nbsp;·&nbsp;&nbsp;Worldwide&nbsp;&nbsp;·&nbsp;&nbsp;Private, never recorded
       </p>
     </div>
   `,

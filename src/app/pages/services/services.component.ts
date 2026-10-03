@@ -23,8 +23,8 @@ interface Topic {
           One hour. Just for you.
         </h1>
         <p class="section-body">
-          A 60-minute one-to-one session where you talk and we listen. That's
-          it — no scripts, no assignments, no advice.
+          A 60-minute one-to-one conversation with a listening companion. You
+          talk, they listen — no scripts, no assignments, no judgement.
         </p>
       </div>
     </section>
@@ -52,11 +52,11 @@ interface Topic {
           <div class="services__card-badge">
             <span>60 min</span>
           </div>
-          <p class="services__card-title">One-to-one listening</p>
+          <p class="services__card-title">A conversation that's all yours</p>
           <ul class="services__card-meta" aria-label="Session features">
             <li>🌐 Worldwide, video or voice</li>
             <li>🕐 Your timezone, your schedule</li>
-            <li>🔒 Fully confidential</li>
+            <li>🔒 Private, never recorded</li>
           </ul>
         </div>
       </div>
@@ -97,11 +97,12 @@ interface Topic {
               An important boundary
             </h2>
             <p class="services__body">
-              Ksira Care is supportive listening only. We don't give advice,
-              diagnose, or provide treatment of any kind. We're not a substitute
-              for therapy, counselling, or medical care. If you're looking for
-              clinical support, please reach out to a qualified professional in
-              your area.
+              Ksira Care is a private conversation service, not a mental health
+              service. We don't diagnose or provide treatment of any kind, and
+              we're not a substitute for therapy, counselling or medical care.
+              If you're looking for clinical support, please reach out to a
+              qualified professional in your area. If you're in crisis, please
+              contact your local emergency services.
             </p>
           </div>
         </div>
@@ -118,16 +119,16 @@ interface Topic {
         <p class="services__pricing-sub">One session, one price. No subscriptions.</p>
 
         <div class="services__pricing-card">
-          <p class="services__price" aria-label="30 US dollars">
-            <span class="services__price-dollar" aria-hidden="true">$</span>30
+          <p class="services__price" aria-label="899 rupees">
+            <span class="services__price-dollar" aria-hidden="true">₹</span>899
           </p>
           <p class="services__price-unit">per 60-minute session</p>
           <a routerLink="/book" class="btn btn-primary services__price-btn">
             Book a Session
           </a>
           <p class="services__price-note">
-            Paid upfront. Ksira Care offers supportive listening, not therapy or
-            medical care. If you're in crisis, please contact local emergency services.
+            Paid upfront. We'll only ever email you your booking confirmation
+            and session link. Nothing else.
           </p>
         </div>
       </div>
@@ -372,17 +373,18 @@ export class ServicesComponent {
     { text: 'Booked at a time that suits your zone' },
     { text: 'Begins with a gentle check-in' },
     { text: 'You lead the conversation, at your pace' },
-    { text: 'Ends with a soft close — no homework' },
+    { text: 'Ends with a gentle close — no homework' },
   ];
 
   protected readonly topics: Topic[] = [
-    { label: 'Stress' },
-    { label: 'Loneliness' },
-    { label: 'Work burnout' },
-    { label: 'Grief' },
-    { label: 'Breakups' },
-    { label: 'Feeling isolated abroad' },
-    { label: 'Family worries' },
-    { label: 'Just needing to vent' },
+    { label: 'A rough day' },
+    { label: 'Good news to share' },
+    { label: 'Work stuff' },
+    { label: 'Feeling lonely' },
+    { label: 'Missing home' },
+    { label: 'Family & relationships' },
+    { label: 'Overthinking' },
+    { label: "Something you've never told anyone" },
+    { label: 'Just wanting to talk' },
   ];
 }

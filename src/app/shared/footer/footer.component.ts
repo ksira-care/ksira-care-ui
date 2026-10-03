@@ -25,8 +25,8 @@ import { RouterLink } from '@angular/router';
             Ksira Care
           </a>
           <p class="footer__tagline">
-            A quiet place to be heard. One-to-one supportive listening with
-            care and confidentiality.
+            A quiet place to be heard — on good days, hard days, and
+            everything in between.
           </p>
         </div>
 
@@ -56,9 +56,9 @@ import { RouterLink } from '@angular/router';
       <div class="footer__bottom">
         <div class="container footer__bottom-inner">
           <p class="footer__disclaimer">
-            Ksira Care is a non-clinical peer support and active-listening
-            service. It is not a substitute for therapy, counselling, or
-            medical care.
+            Ksira Care is a private conversation service. It is not therapy,
+            counselling or medical care, and cannot help in an emergency. If
+            you're in crisis, please contact your local emergency services.
           </p>
           <p class="footer__copy">
             &copy; {{ year }} Ksira Care.&thinsp; All rights reserved.
