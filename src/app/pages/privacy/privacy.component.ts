@@ -111,12 +111,12 @@ export class PrivacyComponent {
     {
       id: 'privacy-use',
       heading: 'How we use it',
-      body: 'We use your information only to schedule and deliver your session, send confirmation and reminder emails, and process payment via our payment provider.',
+      body: 'We use your information only to schedule and deliver your session, email you your booking confirmation and session link, and process payment via our payment provider. We never send marketing emails.',
     },
     {
       id: 'privacy-stored',
       heading: "How it's stored",
-      body: 'Your information is stored securely. Intake notes are accessible only to your listener and are kept for the limited time needed to support your session.',
+      body: 'Your information is stored securely. Intake notes are accessible only to your listening companion and are kept for the limited time needed to support your session.',
     },
     {
       id: 'privacy-share',

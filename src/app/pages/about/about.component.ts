@@ -21,8 +21,8 @@ interface Principle {
           A space built on&nbsp;listening.
         </h1>
         <p class="section-body">
-          Ksira Care started from a simple belief: most of us don't need advice
-          — we just need someone to listen, without rushing or fixing.
+          Ksira Care started from a simple belief: everyone deserves someone to
+          talk to — on a rough day, a happy one, or anything in between.
         </p>
       </div>
     </section>
@@ -35,18 +35,18 @@ interface Principle {
         <div>
           <h2 id="why-heading" class="about__h2">Why we exist</h2>
           <p class="about__body">
-            Life can feel heavy — a hard week at work, a quiet move to a new
-            country, a loss that nobody around you quite understands. Ksira Care
-            exists for those moments.
+            Some days you need to vent. Some days you have good news and no one
+            to tell. Some days you just want someone to talk to. Ksira Care
+            exists for all of those moments.
           </p>
           <p class="about__body">
-            A paid, private space where the entire hour is yours to talk and
-            feel heard, on your own terms.
+            A private hour where the conversation is entirely yours — talk
+            openly and be heard, on your own terms.
           </p>
         </div>
         <div class="about__callout" aria-hidden="true">
           <span class="about__callout-icon">🌱</span>
-          <p>No agenda. No clock-watching. No fixing.</p>
+          <p>No agenda. No clock-watching. No judgement.</p>
         </div>
       </div>
     </section>
@@ -83,19 +83,20 @@ interface Principle {
           <span>✦</span>
         </div>
         <div class="listener__content">
-          <h2 id="listener-heading" class="about__h2">Meet your listener</h2>
+          <h2 id="listener-heading" class="about__h2">Meet our listening companions</h2>
           <p class="about__body">
-            Hello — I'm the active-listening companion behind Ksira Care. I'm
-            not a therapist or a clinician, and I won't pretend to be. What I
-            am is a steady, kind presence trained in attentive listening.
+            Hello — we're the listening companions at Ksira Care. We're not
+            therapists or clinicians, and we won't pretend to be. What we are is
+            a team of people who are fully there for you, trained to listen with
+            care.
           </p>
           <p class="about__body">
-            My role is simply to make space for you: to slow down, to listen
-            carefully, and to honour whatever you share.
+            Our role is simply to make space for you: to slow down, to listen,
+            and to respect whatever you share.
           </p>
           <p class="about__body">
-            If this is your first time reaching out for support of any kind —
-            that's okay. You're welcome here, exactly as you are.
+            Whether it's a hard day, good news, or you just feel like talking —
+            you're welcome here, exactly as you are.
           </p>
           <a routerLink="/book" class="btn btn-primary" style="margin-top:1.5rem">
             Book a Session
@@ -251,18 +252,18 @@ export class AboutComponent {
   protected readonly principles: Principle[] = [
     {
       icon: '🤲',
-      title: 'Judgment-free',
-      body: "Whatever you bring, you'll be met with warmth.",
+      title: 'No judgement',
+      body: "Whatever you bring, you'll be met with warmth and respect.",
     },
     {
       icon: '🔒',
-      title: 'Confidential',
-      body: 'What you share in session stays in session.',
+      title: 'Private, never recorded',
+      body: 'What you share stays between you and your listening companion.',
     },
     {
       icon: '🌿',
-      title: 'Present',
-      body: 'No phones, no distractions — just you and a calm, attentive ear.',
+      title: 'Fully there',
+      body: "No phones, no distractions — just you and someone who's fully there.",
     },
   ];
 }

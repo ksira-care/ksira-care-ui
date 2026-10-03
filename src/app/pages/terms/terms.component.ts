@@ -76,11 +76,11 @@ export class TermsComponent {
   protected readonly sections: TermsSection[] = [
     {
       heading: 'Nature of the service',
-      body: 'Ksira Care provides non-clinical emotional support and active listening. It is not therapy, counselling, medical treatment, or crisis support, and it is not a substitute for any of those.',
+      body: 'Ksira Care provides private, one-to-one conversations with a listening companion. It is not therapy, counselling, medical treatment, or crisis support, and it is not a substitute for any of those.',
     },
     {
       heading: 'Payment',
-      body: 'Sessions are paid upfront at the time of booking. Prices are shown in US dollars. Payment is processed by our third-party payment provider.',
+      body: 'Sessions are paid upfront at the time of booking. Prices are shown in Indian rupees (₹). Payment is processed by our third-party payment provider.',
     },
     {
       heading: 'Cancellations and rescheduling',

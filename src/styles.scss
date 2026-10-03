@@ -56,6 +56,18 @@
   --color-crisis-border:  #fde68a;
   --color-crisis:         #92400e;
 
+  /* Status colours — therapist portal */
+  --color-danger:         #9b2c2c;   /* errors, client no-show */
+  --color-danger-bg:      #fdecea;
+  --color-danger-border:  #f5c6c4;
+  --color-booked:         #7a5a2b;   /* booked hours: warm tan */
+  --color-booked-bg:      #f5ecdf;
+  --color-booked-border:  #e2cfae;
+  --color-booked-dot:     #a8834c;
+  --color-open-border:    #9fd9b2;   /* open hours: border on mint */
+  --color-info:           #33507a;   /* neutral notices, e.g. rescheduled */
+  --color-info-bg:        #e8edf6;
+
   /* Shadow */
   --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.07);
@@ -287,3 +299,31 @@ ul, ol { list-style: none; }
 
   &:focus { top: 0; }
 }
+
+/* ─────────────────────────────────────────────────
+   Loading placeholder — give it a size; the shimmer
+   comes from here (and stops for reduced motion).
+───────────────────────────────────────────────── */
+.skeleton {
+  border-radius: var(--radius-lg);
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-muted) 25%,
+    var(--color-bg-mint) 50%,
+    var(--color-surface-muted) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* Compact button, e.g. secondary actions inside cards. */
+.btn-sm {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.875rem;
+}
+

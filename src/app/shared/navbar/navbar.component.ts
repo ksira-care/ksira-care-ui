@@ -6,6 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { BrandLogoComponent } from '../brand-logo/brand-logo.component';
 
 interface NavItem {
   label: string;
@@ -16,7 +17,7 @@ interface NavItem {
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, BrandLogoComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="navbar">
@@ -24,17 +25,7 @@ interface NavItem {
 
         <!-- Brand -->
         <a routerLink="/" class="navbar__brand" aria-label="Ksira Care – Home">
-          <span class="navbar__logo-circle" aria-hidden="true">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2.5"
-                 stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67
-                       l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78
-                       l1.06 1.06L12 21.23l7.78-7.78
-                       1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-            </svg>
-          </span>
-          <span class="navbar__name">Ksira Care</span>
+          <app-brand-logo />
         </a>
 
         <!-- Desktop nav -->
@@ -153,25 +144,6 @@ interface NavItem {
         outline-offset: 3px;
         border-radius: var(--radius-sm);
       }
-    }
-
-    .navbar__logo-circle {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 30px;
-      height: 30px;
-      background-color: var(--color-green-light);
-      border-radius: 50%;
-      color: var(--color-green);
-      flex-shrink: 0;
-    }
-
-    .navbar__name {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--color-text);
-      letter-spacing: -0.01em;
     }
 
     /* ─── Desktop links ──────────────────────────── */

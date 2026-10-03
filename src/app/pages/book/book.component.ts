@@ -5,13 +5,16 @@ import {
   signal,
 } from '@angular/core';
 import {
-  AbstractControl,
   FormBuilder,
   FormGroup,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import {
+  CalendarPickerComponent,
+  CalendarSelection,
+} from '../../shared/calendar-picker/calendar-picker.component';
 
 type BookingStep = 'form' | 'success';
 
@@ -29,7 +32,7 @@ function getBrowserTimezone(): string {
 @Component({
   selector: 'app-book',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, RouterLink, CalendarPickerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- Crisis banner -->
@@ -51,8 +54,8 @@ function getBrowserTimezone(): string {
               Schedule your session.
             </h1>
             <p class="section-body">
-              A 60-minute one-to-one session. $30, paid upfront. Choose a time
-              that works in your zone.
+              A 60-minute one-to-one conversation. ₹899, paid upfront. Choose a
+              time that works in your zone.
             </p>
           </div>
 
@@ -69,14 +72,16 @@ function getBrowserTimezone(): string {
                 <span class="form-section__number" aria-hidden="true">1</span>
                 Pick a time
               </legend>
-              <div class="calendly-placeholder" role="img" aria-label="Scheduling calendar placeholder">
-                <span class="calendly-placeholder__icon" aria-hidden="true">🗓️</span>
-                <p class="calendly-placeholder__title">Scheduling calendar</p>
-                <p class="calendly-placeholder__sub">
-                  Calendly / Cal.com embed will appear here.
-                  Time zones are detected automatically.
-                </p>
-              </div>
+
+              <app-calendar-picker
+                (selectionChange)="onCalendarChange($event)"
+              />
+
+              @if (calendarTouched() && !selectedSlot()) {
+                <span class="form-error" role="alert">
+                  Please select a date and time before continuing.
+                </span>
+              }
             </fieldset>
 
             <!-- Step 2: Tell us about you -->
@@ -194,9 +199,9 @@ function getBrowserTimezone(): string {
                     [attr.aria-invalid]="isInvalid('consent')"
                   />
                   <span>
-                    I understand that Ksira Care provides emotional support and
-                    active listening only — not therapy, counselling, or medical
-                    advice.
+                    I understand that Ksira Care offers private conversations
+                    with a listening companion only — not therapy, counselling,
+                    medical advice or crisis support.
                     <span class="required" aria-label="required">*</span>
                   </span>
                 </label>
@@ -218,7 +223,7 @@ function getBrowserTimezone(): string {
               <div class="payment-summary" role="group" aria-label="Payment summary">
                 <div class="payment-summary__row">
                   <span>60-minute session</span>
-                  <span class="payment-summary__price">$30 USD</span>
+                  <span class="payment-summary__price">₹899</span>
                 </div>
                 <div class="payment-placeholder" aria-label="Payment form placeholder">
                   <span aria-hidden="true">💳</span>
@@ -239,7 +244,7 @@ function getBrowserTimezone(): string {
                   <span class="spinner" aria-hidden="true"></span>
                   Processing…
                 } @else {
-                  Pay $30 and Book
+                  Pay ₹899 and Book
                 }
               </button>
 
@@ -277,7 +282,7 @@ function getBrowserTimezone(): string {
               </li>
               <li>
                 <span aria-hidden="true">💰</span>
-                <span>$30 USD, paid upfront</span>
+                <span>₹899, paid upfront</span>
               </li>
               <li>
                 <span aria-hidden="true">🌐</span>
@@ -285,7 +290,7 @@ function getBrowserTimezone(): string {
               </li>
               <li>
                 <span aria-hidden="true">🔒</span>
-                <span>Fully confidential</span>
+                <span>Private, never recorded</span>
               </li>
               <li>
                 <span aria-hidden="true">↩️</span>
@@ -296,8 +301,9 @@ function getBrowserTimezone(): string {
 
           <div class="trust-card trust-card--note" role="note">
             <p>
-              Ksira Care is supportive listening only — not therapy or medical
-              care. If you're in crisis, please contact emergency services.
+              Ksira Care is a private conversation service — not therapy or
+              medical care. If you're in crisis, please contact your local
+              emergency services.
             </p>
           </div>
         </aside>
@@ -421,35 +427,9 @@ function getBrowserTimezone(): string {
       text-align: right;
     }
 
-    /* Calendly placeholder */
-    .calendly-placeholder {
-      background-color: var(--color-surface-muted);
-      border: 2px dashed var(--color-border);
-      border-radius: var(--radius-md);
-      padding: var(--space-2xl);
-      text-align: center;
-      min-height: 200px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-sm);
-    }
-
-    .calendly-placeholder__icon {
-      font-size: 2rem;
-    }
-
-    .calendly-placeholder__title {
-      font-weight: 500;
-      color: var(--color-text);
-    }
-
-    .calendly-placeholder__sub {
-      font-size: 0.875rem;
-      color: var(--color-text-muted);
-      max-width: 40ch;
-    }
+    /* ── Calendar section wrapper ── */
+    /* The calendar component handles its own internal styles.
+       We just need a clean container inside the fieldset. */
 
     /* Consent */
     .consent-group {
@@ -613,9 +593,11 @@ function getBrowserTimezone(): string {
   `,
 })
 export class BookComponent implements OnInit {
-  protected readonly step = signal<BookingStep>('form');
-  protected readonly isSubmitting = signal(false);
-  protected readonly confirmedEmail = signal('');
+  protected readonly step            = signal<BookingStep>('form');
+  protected readonly isSubmitting    = signal(false);
+  protected readonly confirmedEmail  = signal('');
+  protected readonly selectedSlot    = signal<CalendarSelection | null>(null);
+  protected readonly calendarTouched = signal(false);
 
   protected bookingForm!: FormGroup;
 
@@ -661,6 +643,11 @@ export class BookComponent implements OnInit {
     });
   }
 
+  protected onCalendarChange(sel: CalendarSelection | null): void {
+    this.selectedSlot.set(sel);
+    if (sel) this.calendarTouched.set(true);
+  }
+
   protected isInvalid(field: string): boolean {
     const ctrl = this.bookingForm.get(field);
     return !!(ctrl?.invalid && ctrl.touched);
@@ -686,8 +673,9 @@ export class BookComponent implements OnInit {
 
   protected onSubmit(): void {
     this.bookingForm.markAllAsTouched();
+    this.calendarTouched.set(true);
 
-    if (this.bookingForm.invalid || this.isSubmitting()) return;
+    if (this.bookingForm.invalid || !this.selectedSlot() || this.isSubmitting()) return;
 
     this.isSubmitting.set(true);
 
