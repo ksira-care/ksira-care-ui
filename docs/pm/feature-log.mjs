@@ -501,7 +501,7 @@ export const report = {
     {
       id: 'F6',
       name: 'Backend for the therapist portal',
-      status: 'Built and tested — hosting set up, accounts to be created',
+      status: 'Live at ksiracare.com — first therapists to be added',
       date: '3 October 2026',
       summary:
         'The server behind the portal — sign-in, bookings, availability, profile and dashboard numbers — with every rule enforced on the server, not just in the browser.',
@@ -541,9 +541,9 @@ export const report = {
             'Database changes are versioned (so production can be upgraded safely), production settings come from the hosting environment, and demo data exists only on developer machines.',
         },
         {
-          title: 'Hosting chosen and configured (free tiers)',
+          title: 'Hosting set up and live (free tiers)',
           detail:
-            'Website on Netlify, server on Render, database on Neon — all in Singapore, closest to India. The website forwards ksiracare.com/api to the server, so sign-in works in every browser including Safari. The project files for all three are ready; what remains is creating the accounts and pasting in the settings.',
+            'Website and server on Render, database on Neon — all in Singapore, closest to India. The website forwards ksiracare.com/api to the server, so sign-in works in every browser including Safari. ksiracare.com now points to Render, with HTTPS.',
         },
         {
           title: 'Tested end to end',
@@ -567,8 +567,8 @@ export const report = {
           reason: 'Neither is shown (country was dropped; payouts are out of scope), and not sending data that isn’t needed protects client privacy. Both stay in the database.',
         },
         {
-          decision: 'Netlify instead of Vercel for the website',
-          reason: 'Vercel’s free plan doesn’t allow commercial sites, and Ksira Care takes paid bookings. Netlify’s free plan does, and works the same way.',
+          decision: 'Website on Render, not Vercel or Netlify',
+          reason: 'Vercel’s free plan doesn’t allow commercial sites, and Ksira Care takes paid bookings. Netlify suspended the new account during setup without giving a reason. Render already hosts the server, allows commercial use for free, and keeps everything on one platform.',
         },
         {
           decision: 'Free hosting tiers to start',
@@ -582,19 +582,9 @@ export const report = {
 
       openItems: [
         {
-          item: 'Create the Neon, Render and Netlify accounts and enter the production settings (database details and a newly generated signing key)',
-          owner: 'DevOps',
-          impact: 'Blocker for launch. Step-by-step instructions are in the backend README; the server won’t start without the settings — by design.',
-        },
-        {
-          item: 'Point ksiracare.com at Netlify',
-          owner: 'DevOps',
-          impact: 'Blocker for launch: sign-in only works when the site and server share the ksiracare.com address.',
-        },
-        {
           item: 'Add the first real therapists',
           owner: 'Ops',
-          impact: 'The live database starts empty. Admins add therapists with a ready-made database command that stores passwords safely (hashed); a friendlier admin tool can come later.',
+          impact: 'Blocker for therapists signing in: the live database starts empty. Admins add therapists with a ready-made database command that stores passwords safely (hashed); a friendlier admin tool can come later.',
         },
         {
           item: 'Admin tools for assigning, rescheduling and cancelling bookings and recording therapist no-shows',
@@ -780,6 +770,10 @@ export const report = {
     {
       date: '3 October 2026',
       entry: 'F6 Hosting: Netlify (website) + Render (server) + Neon (database), free tiers, Singapore. Vercel dropped — its free plan bars commercial use. Health check added for the host; instructions for adding therapists written. Remaining: create the accounts and point the domain.',
+    },
+    {
+      date: '3 October 2026',
+      entry: 'F6 Live: ksiracare.com now runs on Render (website and server) with Neon (database), HTTPS on. Website moved from Netlify to Render after Netlify suspended the new account. Remaining: add the first therapists.',
     },
   ],
 };
