@@ -8,6 +8,7 @@ import { BookingRowComponent } from './booking-row.component';
 import { CancelBookingDialogComponent } from './cancel-booking-dialog.component';
 import { TodayStore } from './today.store';
 import { AdminBooking } from './today.models';
+import { LoadingRowsComponent } from '../../../shared/ui/loading-rows.component';
 
 /**
  * Where admins act on bookings: give each session an aapta, record that the
@@ -18,7 +19,7 @@ import { AdminBooking } from './today.models';
 @Component({
   selector: 'app-admin-today-page',
   standalone: true,
-  imports: [
+  imports: [LoadingRowsComponent, 
     DateStripComponent,
     BookingRowComponent,
     LoadErrorComponent,
@@ -83,7 +84,7 @@ import { AdminBooking } from './today.models';
     } @else if (store.bookings.error()) {
       <app-load-error message="We couldn't load the bookings." (retry)="store.bookings.reload()" />
     } @else {
-      <div class="skeleton today__loading" aria-busy="true"><span class="visually-hidden">Loading bookings…</span></div>
+      <app-loading-rows label="Loading bookings…" />
     }
 
     @if (formFor(); as booking) {
@@ -128,7 +129,6 @@ import { AdminBooking } from './today.models';
 
     .today__table { min-width: 60rem; }
 
-    .today__loading { height: 18rem; }
 
     .today__dismiss { color: inherit; width: 1.5rem; height: 1.5rem; }
   `,

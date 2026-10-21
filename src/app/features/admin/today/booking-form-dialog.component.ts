@@ -7,12 +7,13 @@ import { DialogComponent } from '../../../shared/ui/dialog.component';
 import { LoadErrorComponent } from '../../../shared/ui/load-error.component';
 import { TodayGateway } from './today.gateway';
 import { AdminBooking } from './today.models';
+import { LoadingRowsComponent } from '../../../shared/ui/loading-rows.component';
 
 /** "View form": what the client entered when booking, field by field. */
 @Component({
   selector: 'app-booking-form-dialog',
   standalone: true,
-  imports: [DialogComponent, CopyButtonComponent, LoadErrorComponent],
+  imports: [LoadingRowsComponent, DialogComponent, CopyButtonComponent, LoadErrorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-dialog title="Booking form" [(open)]="open">
@@ -32,7 +33,7 @@ import { AdminBooking } from './today.models';
       } @else if (form.error()) {
         <app-load-error message="We couldn't load the form." (retry)="form.reload()" />
       } @else {
-        <div class="skeleton form-fields__loading" aria-busy="true"><span class="visually-hidden">Loading…</span></div>
+        <app-loading-rows label="Loading the form…" [rows]="5" />
       }
     </app-dialog>
   `,
@@ -50,7 +51,6 @@ import { AdminBooking } from './today.models';
     dd { overflow-wrap: anywhere; color: var(--color-text); }
 
     .form-fields__email { display: flex; align-items: center; gap: var(--space-xs); }
-    .form-fields__loading { height: 16rem; }
   `,
 })
 export class BookingFormDialogComponent {

@@ -7,6 +7,7 @@ import { LoadErrorComponent } from '../../../shared/ui/load-error.component';
 import { shortName } from '../admin.models';
 import { AvailabilityOverviewGateway } from './availability-overview.gateway';
 import { AvailabilityCell } from './availability-overview.models';
+import { LoadingRowsComponent } from '../../../shared/ui/loading-rows.component';
 
 const STATE_LABELS = { open: 'Open', booked: 'Booked', unavailable: 'Not working' } as const;
 
@@ -19,7 +20,7 @@ const STATE_LABELS = { open: 'Open', booked: 'Booked', unavailable: 'Not working
 @Component({
   selector: 'app-admin-availability-page',
   standalone: true,
-  imports: [DateStripComponent, LoadErrorComponent],
+  imports: [LoadingRowsComponent, DateStripComponent, LoadErrorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="page-header">
@@ -81,7 +82,7 @@ const STATE_LABELS = { open: 'Open', booked: 'Booked', unavailable: 'Not working
     } @else if (overview.error()) {
       <app-load-error message="We couldn't load availability." (retry)="overview.reload()" />
     } @else {
-      <div class="skeleton grid__loading" aria-busy="true"><span class="visually-hidden">Loading…</span></div>
+      <app-loading-rows label="Loading availability…" [rows]="5" />
     }
   `,
   styles: `
@@ -174,7 +175,6 @@ const STATE_LABELS = { open: 'Open', booked: 'Booked', unavailable: 'Not working
       text-align: center;
     }
 
-    .grid__loading { height: 16rem; }
   `,
 })
 export class AvailabilityOverviewPageComponent {

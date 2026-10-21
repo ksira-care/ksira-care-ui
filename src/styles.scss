@@ -325,19 +325,27 @@ select.form-control {
 }
 
 /* ─────────────────────────────────────────────────
-   Loading placeholder — give it a size; the shimmer
-   comes from here (and stops for reduced motion).
+   Loading placeholder — give it a size. It stays invisible
+   for its first 300 ms, so quick loads never flash, then
+   shimmers in neutral grey (never a status colour).
 ───────────────────────────────────────────────── */
 .skeleton {
   border-radius: var(--radius-lg);
   background: linear-gradient(
     90deg,
-    var(--color-surface-muted) 25%,
-    var(--color-bg-mint) 50%,
-    var(--color-surface-muted) 75%
+    var(--color-hover-tint) 25%,
+    var(--color-border) 50%,
+    var(--color-hover-tint) 75%
   );
   background-size: 200% 100%;
-  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  animation:
+    skeleton-reveal 200ms ease 300ms both,
+    skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-reveal {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes skeleton-shimmer {
