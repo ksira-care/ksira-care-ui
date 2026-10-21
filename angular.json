@@ -65,6 +65,10 @@
                 {
                   "replace": "src/app/features/aapta/aapta-api.providers.ts",
                   "with": "src/app/features/aapta/aapta-api.providers.mock.ts"
+                },
+                {
+                  "replace": "src/app/features/admin/admin-api.providers.ts",
+                  "with": "src/app/features/admin/admin-api.providers.mock.ts"
                 }
               ]
             },
@@ -99,7 +103,10 @@
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "setupFiles": ["src/test-setup.ts"]
+          }
         }
       }
     }

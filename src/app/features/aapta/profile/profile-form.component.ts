@@ -7,8 +7,9 @@ import {
   Validators,
 } from '@angular/forms';
 import { Language } from '../../../core/languages/language.models';
+import { LanguagePickerComponent } from '../../../shared/ui/language-picker.component';
 import { portalToday } from '../../../core/time/civil-date';
-import { toE164 } from './profile-format';
+import { toE164 } from '../../../core/format/phone';
 import { AaptaProfile, PROFILE_LIMITS, ProfileChanges } from './profile.models';
 
 type TextField = 'firstName' | 'middleName' | 'lastName' | 'phone' | 'dateOfBirth' | 'address';
@@ -37,7 +38,7 @@ const MESSAGES: Readonly<Record<string, string>> = {
 @Component({
   selector: 'app-profile-form',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, LanguagePickerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <form class="profile-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
@@ -107,25 +108,20 @@ const MESSAGES: Readonly<Record<string, string>> = {
           }
         </div>
 
-        <fieldset class="form-group profile-form__wide profile-form__languages"
-                  [attr.aria-describedby]="languagesInvalid() ? 'profile-languages-error' : null">
-          <legend class="form-label">Languages you speak <span class="required" aria-hidden="true">*</span></legend>
-          <div class="profile-form__choices">
-            @for (language of languages(); track language.code) {
-              <label class="profile-form__choice">
-                <input
-                  type="checkbox"
-                  [checked]="form.controls.languages.value.includes(language.code)"
-                  (change)="toggleLanguage(language.code)"
-                />
-                {{ language.name }}
-              </label>
-            }
-          </div>
+        <div class="form-group profile-form__wide">
+          <span class="form-label" id="profile-languages-label">
+            Languages you speak <span class="required" aria-hidden="true">*</span>
+          </span>
+          <app-language-picker
+            [languages]="languages()"
+            formControlName="languages"
+            labelledBy="profile-languages-label"
+            [describedBy]="languagesInvalid() ? 'profile-languages-error' : null"
+          />
           @if (languagesInvalid()) {
             <p class="form-error" id="profile-languages-error">Choose at least one language.</p>
           }
-        </fieldset>
+        </div>
 
         <div class="form-group profile-form__wide">
           <label class="form-label" for="profile-address">Address</label>
@@ -183,31 +179,8 @@ const MESSAGES: Readonly<Record<string, string>> = {
       color: var(--color-text-muted);
     }
 
-    .profile-form__languages {
-      border: none;
-      min-width: 0;
-    }
 
-    .profile-form__choices {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--space-sm) var(--space-lg);
-    }
 
-    .profile-form__choice {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--space-sm);
-      min-height: 44px;
-      color: var(--color-text);
-      cursor: pointer;
-
-      input {
-        width: 1.125rem;
-        height: 1.125rem;
-        accent-color: var(--color-green);
-      }
-    }
 
     textarea.form-control { resize: vertical; }
 
@@ -273,15 +246,6 @@ export class ProfileFormComponent implements OnInit {
     return control.touched && control.invalid;
   }
 
-  protected toggleLanguage(code: string): void {
-    const control = this.form.controls.languages;
-    const selected = control.value.includes(code)
-      ? control.value.filter((c) => c !== code)
-      : [...control.value, code];
-    control.setValue(selected);
-    control.markAsTouched();
-    control.markAsDirty();
-  }
 
   protected errorFor(field: TextField): string | null {
     const control = this.form.controls[field];

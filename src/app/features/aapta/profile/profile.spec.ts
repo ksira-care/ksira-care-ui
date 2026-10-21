@@ -7,7 +7,8 @@ import { API_BASE_URL } from '../../../core/http/api-base-url';
 import { LanguagesGateway } from '../../../core/languages/languages.gateway';
 import { MOCK_LANGUAGES } from '../../../core/languages/mock-languages.gateway';
 import { HttpProfileGateway } from './http-profile.gateway';
-import { formatBirthDate, formatPhone, toE164 } from './profile-format';
+import { formatPhone, toE164 } from '../../../core/format/phone';
+import { formatBirthDate } from './profile-format';
 import { ProfilePageComponent } from './profile-page.component';
 import { ProfileGateway } from './profile.gateway';
 import { AaptaProfile, ProfileChanges } from './profile.models';
@@ -220,7 +221,7 @@ describe('ProfilePageComponent', () => {
   it('requires at least one language', async () => {
     await render(of({ ...PROFILE, languages: ['en'] }));
     await edit();
-    host.querySelector<HTMLInputElement>('.profile-form__choice input:checked')!.click();
+    host.querySelector<HTMLInputElement>('app-language-picker input:checked')!.click();
     await save();
 
     expect(updateProfile).not.toHaveBeenCalled();

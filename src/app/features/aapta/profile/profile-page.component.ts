@@ -9,7 +9,8 @@ import { HasUnsavedChanges } from '../../../core/navigation/unsaved-changes.guar
 import { ChangePasswordFormComponent } from '../../../shared/account/change-password-form.component';
 import { LoadErrorComponent } from '../../../shared/ui/load-error.component';
 import { ProfileFormComponent } from './profile-form.component';
-import { formatBirthDate, formatPhone } from './profile-format';
+import { formatPhone } from '../../../core/format/phone';
+import { formatBirthDate } from './profile-format';
 import { ProfileGateway } from './profile.gateway';
 import { AaptaProfile, ProfileChanges } from './profile.models';
 
