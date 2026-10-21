@@ -8,6 +8,7 @@ import { TabBarComponent, TabOption } from '../../../shared/ui/tab-bar.component
 import { Outcome, shortName } from '../admin.models';
 import { HistoryGateway } from './history.gateway';
 import { HistoryExport, HistoryMonth, HistorySession, MonthKey } from './history.models';
+import { LoadingRowsComponent } from '../../../shared/ui/loading-rows.component';
 
 const OUTCOMES: Readonly<Record<Outcome, { label: string; tone: string | null }>> = {
   completed: { label: 'Completed', tone: 'success' },
@@ -42,7 +43,7 @@ function monthOnly(month: MonthKey): string {
 @Component({
   selector: 'app-admin-history-page',
   standalone: true,
-  imports: [TabBarComponent, LoadErrorComponent],
+  imports: [LoadingRowsComponent, TabBarComponent, LoadErrorComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="page-header">
@@ -139,7 +140,7 @@ function monthOnly(month: MonthKey): string {
     } @else if (history.error()) {
       <app-load-error message="We couldn't load History." (retry)="history.reload()" />
     } @else {
-      <div class="skeleton history__loading" aria-busy="true"><span class="visually-hidden">Loading History…</span></div>
+      <app-loading-rows label="Loading History…" [rows]="6" />
     }
   `,
   styles: `
@@ -220,7 +221,6 @@ function monthOnly(month: MonthKey): string {
       text-align: center;
     }
 
-    .history__loading { height: 20rem; }
   `,
 })
 export class HistoryPageComponent {

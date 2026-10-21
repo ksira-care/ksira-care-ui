@@ -9,6 +9,7 @@ import { AaptaAccount, AaptaAccountChanges, NewAapta } from './aaptas.models';
 import { AaptasStore } from './aaptas.store';
 import { EditAaptaDialogComponent } from './edit-aapta-dialog.component';
 import { RemoveAaptaDialogComponent } from './remove-aapta-dialog.component';
+import { LoadingRowsComponent } from '../../../shared/ui/loading-rows.component';
 
 /** A login just created, shown once so the admin can pass it on. */
 interface CreatedLogin {
@@ -25,7 +26,7 @@ interface CreatedLogin {
 @Component({
   selector: 'app-admin-aaptas-page',
   standalone: true,
-  imports: [
+  imports: [LoadingRowsComponent, 
     AddAaptaFormComponent,
     EditAaptaDialogComponent,
     RemoveAaptaDialogComponent,
@@ -59,7 +60,7 @@ interface CreatedLogin {
         } @else if (store.languages.error()) {
           <app-load-error message="We couldn't load the list of languages." (retry)="store.languages.reload()" />
         } @else {
-          <div class="skeleton aaptas__loading" aria-busy="true"><span class="visually-hidden">Loading…</span></div>
+          <app-loading-rows label="Loading…" [rows]="3" />
         }
       </section>
     }
@@ -122,7 +123,7 @@ interface CreatedLogin {
     } @else if (store.roster.error()) {
       <app-load-error message="We couldn't load the roster." (retry)="store.roster.reload()" />
     } @else {
-      <div class="skeleton aaptas__loading" aria-busy="true"><span class="visually-hidden">Loading the roster…</span></div>
+      <app-loading-rows label="Loading the roster…" />
     }
 
     @if (editing(); as aapta) {
@@ -193,7 +194,6 @@ interface CreatedLogin {
       text-align: center;
     }
 
-    .aaptas__loading { height: 14rem; }
     .aaptas__dismiss { color: inherit; width: 1.5rem; height: 1.5rem; }
   `,
 })
