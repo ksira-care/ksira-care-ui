@@ -223,7 +223,7 @@ interface Topic {
       margin-bottom: var(--space-md);
 
       span {
-        background-color: rgba(44, 95, 74, 0.1);
+        background-color: var(--color-green-tint);
         color: var(--color-cta);
         font-size: 0.875rem;
         font-weight: 600;
@@ -274,8 +274,8 @@ interface Topic {
       display: flex;
       align-items: flex-start;
       gap: var(--space-lg);
-      background-color: #fffbeb;
-      border: 1px solid #fde68a;
+      background-color: var(--color-crisis-bg);
+      border: 1px solid var(--color-crisis-border);
       border-radius: var(--radius-lg);
       padding: var(--space-xl);
     }
@@ -313,7 +313,7 @@ interface Topic {
     }
 
     .services__pricing-card {
-      background-color: #ffffff;
+      background-color: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-xl);
       padding: 2.5rem 2rem 2rem;

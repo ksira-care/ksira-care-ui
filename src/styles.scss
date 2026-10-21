@@ -23,6 +23,7 @@
   --color-green-hover:  #153826;
   --color-green-light:  oklch(95% 0.07 152);   /* same mint as card */
   --color-green-text:   #ffffff;
+  --color-text-inverse: #ffffff;     /* text on dark fills: toasts, spinners */
 
   /* Typography */
   --font-sans:  'Nunito', system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
@@ -56,7 +57,7 @@
   --color-crisis-border:  #fde68a;
   --color-crisis:         #92400e;
 
-  /* Status colours — therapist portal */
+  /* Status colours — aapta portal */
   --color-danger:         #9b2c2c;   /* errors, client no-show */
   --color-danger-bg:      #fdecea;
   --color-danger-border:  #f5c6c4;
@@ -67,6 +68,14 @@
   --color-open-border:    #9fd9b2;   /* open hours: border on mint */
   --color-info:           #33507a;   /* neutral notices, e.g. rescheduled */
   --color-info-bg:        #e8edf6;
+
+  /* Translucent tints */
+  --color-hover-tint:   rgba(0, 0, 0, 0.04);        /* hover on plain buttons and rows */
+  --color-glass:        rgba(255, 255, 255, 0.85);  /* frosted bars and backdrops */
+  --color-glass-strong: rgba(255, 255, 255, 0.95);
+  --color-focus-ring:   rgba(31, 77, 53, 0.1);      /* --color-green at 10% */
+  --color-danger-ring:  rgba(155, 44, 44, 0.08);    /* --color-danger at 8% */
+  --color-green-tint:   rgba(31, 77, 53, 0.1);      /* icon wells on the public pages */
 
   /* Shadow */
   --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.05);
@@ -203,7 +212,7 @@ ul, ol { list-style: none; }
   font-weight: 500;
   color: var(--color-text);
 
-  .required { color: #dc2626; margin-left: 2px; }
+  .required { color: var(--color-danger); margin-left: 2px; }
 }
 
 .form-control {
@@ -223,16 +232,16 @@ ul, ol { list-style: none; }
   &:focus {
     outline: none;
     border-color: var(--color-green);
-    box-shadow: 0 0 0 3px rgba(31, 77, 53, 0.1);
+    box-shadow: 0 0 0 3px var(--color-focus-ring);
   }
 
   &.invalid {
-    border-color: #dc2626;
-    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 3px var(--color-danger-ring);
   }
 }
 
-.form-error { font-size: 0.8125rem; color: #dc2626; }
+.form-error { font-size: 0.8125rem; color: var(--color-danger); }
 
 /* ─────────────────────────────────────────────────
    Section helpers
@@ -327,3 +336,108 @@ ul, ol { list-style: none; }
   font-size: 0.875rem;
 }
 
+
+/* ─────────────────────────────────────────────────
+   Portal building blocks — shared by the aapta portal
+   and the admin console
+───────────────────────────────────────────────── */
+
+/* A white panel grouping one part of a page. */
+.card {
+  padding: var(--space-xl);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+
+  @media (max-width: 640px) { padding: var(--space-lg); }
+}
+
+.card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.card__title {
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  font-weight: normal;
+}
+
+/* An inline message: data-tone = success | error | warning | info. */
+.notice {
+  padding: 0.75rem 1rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+
+  &[data-tone='success'] { background-color: var(--color-green-light); color: var(--color-green); }
+  &[data-tone='error'] {
+    border-color: var(--color-danger-border);
+    background-color: var(--color-danger-bg);
+    color: var(--color-danger);
+  }
+  &[data-tone='warning'] {
+    border-color: var(--color-crisis-border);
+    background-color: var(--color-crisis-bg);
+    color: var(--color-crisis);
+  }
+  &[data-tone='info'] { background-color: var(--color-info-bg); color: var(--color-info); }
+}
+
+/* A short-lived message pinned to the bottom of the screen. */
+.toast {
+  position: fixed;
+  bottom: var(--space-lg);
+  left: 50%;
+  z-index: 120;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  max-width: calc(100vw - 2rem);
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-text);
+  box-shadow: var(--shadow-md);
+  font-size: 0.9375rem;
+  color: var(--color-text-inverse);
+  transform: translateX(-50%);
+
+  &[data-tone='success'] { background-color: var(--color-green); }
+}
+
+/* Busy indicator inside a filled button; takes the button's text colour. */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid color-mix(in srgb, currentColor 35%, transparent);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* A small status label: data-tone = success | danger | warning | info | booked | active, or none. */
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background-color: var(--color-surface-muted);
+  color: var(--color-text-body);
+
+  &[data-tone='success'] { background-color: var(--color-green-light); color: var(--color-green); }
+  &[data-tone='danger'] { background-color: var(--color-danger-bg); color: var(--color-danger); }
+  &[data-tone='warning'] { background-color: var(--color-crisis-bg); color: var(--color-crisis); }
+  &[data-tone='info'] { background-color: var(--color-info-bg); color: var(--color-info); }
+  &[data-tone='booked'] { background-color: var(--color-booked-bg); color: var(--color-booked); }
+  &[data-tone='active'] { background-color: var(--color-green); color: var(--color-green-text); }
+}

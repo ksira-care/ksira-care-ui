@@ -235,7 +235,7 @@ interface Principle {
       flex-shrink: 0;
       width: 80px;
       height: 80px;
-      background-color: rgba(44, 95, 74, 0.1);
+      background-color: var(--color-green-tint);
       border-radius: 50%;
       display: flex;
       align-items: center;

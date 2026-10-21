@@ -4,12 +4,13 @@ import { AuthGateway } from './auth.gateway';
 import { AuthError, AuthenticatedUser } from './auth.models';
 import { AuthService } from './auth.service';
 
-const USER: AuthenticatedUser = { id: 'th_1', name: 'Asha Rao', email: 'asha@ksiracare.com' };
+const USER: AuthenticatedUser = { id: 'ap_1', name: 'Asha Rao', email: 'asha@ksiracare.com', role: 'aapta' };
 
 class FakeGateway extends AuthGateway {
   login = vi.fn((): Observable<AuthenticatedUser> => of(USER));
   fetchCurrentUser = vi.fn((): Observable<AuthenticatedUser | null> => of(null));
   logout = vi.fn((): Observable<void> => of(undefined));
+  changePassword = vi.fn((): Observable<void> => of(undefined));
 }
 
 describe('AuthService', () => {
@@ -82,5 +83,14 @@ describe('AuthService', () => {
     await firstValueFrom(service.logout());
 
     expect(service.isAuthenticated()).toBe(false);
+  });
+
+  it('picks up a changed name when asked to refresh', async () => {
+    await firstValueFrom(service.login({ email: USER.email, password: 'secret' }));
+    gateway.fetchCurrentUser.mockReturnValue(of({ ...USER, name: 'Asha R. Rao' }));
+
+    await firstValueFrom(service.refresh());
+
+    expect(service.user()?.name).toBe('Asha R. Rao');
   });
 });

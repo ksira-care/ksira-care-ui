@@ -266,7 +266,7 @@ function isSameDay(a: Date, b: Date): boolean {
     .cal__day--past    { color: var(--color-text-subtle); opacity: 0.3; }
     .cal__day--selected {
       background-color: var(--color-green) !important;
-      color: #fff !important;
+      color: var(--color-text-inverse) !important;
       font-weight: 600;
     }
 
@@ -344,7 +344,7 @@ function isSameDay(a: Date, b: Date): boolean {
 
     .cal__slot--selected {
       background-color: var(--color-green) !important;
-      color: #fff !important;
+      color: var(--color-text-inverse) !important;
       border-color: var(--color-green) !important;
       font-weight: 600;
     }

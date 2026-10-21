@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
 /**
- * Root shell. Each area of the app (public site, therapist portal) brings
+ * Root shell. Each area of the app (public site, aapta portal) brings
  * its own layout through the router.
  */
 @Component({

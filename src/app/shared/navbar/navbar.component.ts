@@ -103,7 +103,7 @@ interface NavItem {
       top: 0;
       z-index: 100;
       /* Solid fallback + frosted-glass overlay matches Lovable scroll behaviour */
-      background-color: rgba(255, 255, 255, 0.85);
+      background-color: var(--color-glass);
       -webkit-backdrop-filter: blur(14px) saturate(1.4);
       backdrop-filter: blur(14px) saturate(1.4);
       border-bottom: 1px solid var(--color-border-nav);
@@ -111,7 +111,7 @@ interface NavItem {
     }
 
     :host(.navbar--raised) {
-      background-color: rgba(255, 255, 255, 0.95);
+      background-color: var(--color-glass-strong);
       box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
     }
 
@@ -167,7 +167,7 @@ interface NavItem {
 
       &:hover {
         color: var(--color-text);
-        background-color: rgba(0, 0, 0, 0.04);
+        background-color: var(--color-hover-tint);
       }
 
       /* Active: just darker text, no background fill */
@@ -225,7 +225,7 @@ interface NavItem {
     /* ─── Mobile drawer ──────────────────────────── */
     .navbar__mobile {
       display: none;
-      background-color: #ffffff;
+      background-color: var(--color-surface);
       border-top: 1px solid var(--color-border-nav);
       padding: 0.75rem 1.5rem 1.5rem;
 
@@ -242,7 +242,7 @@ interface NavItem {
       border-radius: var(--radius-md);
       transition: background-color 150ms ease, color 150ms ease;
 
-      &:hover { background-color: rgba(0, 0, 0, 0.04); color: var(--color-text); }
+      &:hover { background-color: var(--color-hover-tint); color: var(--color-text); }
       &.active { color: var(--color-green); font-weight: 500; }
     }
 
