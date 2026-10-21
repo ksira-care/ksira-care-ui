@@ -117,12 +117,15 @@ body {
   -webkit-font-smoothing: antialiased;
   display: grid;
   grid-template-rows: 1fr;
+  /* minmax(0, …): wide content (e.g. a table) scrolls inside its box instead of widening the page. */
+  grid-template-columns: minmax(0, 1fr);
   min-height: 100dvh;
 }
 
 app-root {
   display: grid;
   grid-template-rows: auto 1fr auto;
+  grid-template-columns: minmax(0, 1fr);
   min-height: 100dvh;
 }
 
@@ -242,6 +245,18 @@ ul, ol { list-style: none; }
 }
 
 .form-error { font-size: 0.8125rem; color: var(--color-danger); }
+
+/* .form-control hides the browser's arrow; draw a chevron so a dropdown still looks like one. */
+select.form-control {
+  padding-right: 2.25rem;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--color-text-muted) 50%),
+    linear-gradient(135deg, var(--color-text-muted) 50%, transparent 50%);
+  background-position: calc(100% - 1.125rem) 50%, calc(100% - 0.8125rem) 50%;
+  background-size: 0.3125rem 0.3125rem;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
 
 /* ─────────────────────────────────────────────────
    Section helpers
@@ -440,4 +455,88 @@ ul, ol { list-style: none; }
   &[data-tone='info'] { background-color: var(--color-info-bg); color: var(--color-info); }
   &[data-tone='booked'] { background-color: var(--color-booked-bg); color: var(--color-booked); }
   &[data-tone='active'] { background-color: var(--color-green); color: var(--color-green-text); }
+}
+
+/* Tables of records in the admin console. Wrap in .table-scroll so narrow screens scroll it. */
+.table-scroll {
+  /* Positioned, so screen-reader-only text inside is clipped with the table instead of widening the page. */
+  position: relative;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+}
+
+.data-table {
+  width: 100%;
+  /* Narrow screens scroll the table sideways (in .table-scroll) rather than crush its columns. */
+  min-width: 44rem;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+
+  th {
+    padding: 0.75rem var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-align: left;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-text-muted);
+  }
+
+  td {
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: top;
+    color: var(--color-text);
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+}
+
+/* A square button holding only an icon; give it an aria-label. */
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--transition), color var(--transition);
+
+  &:hover:not(:disabled) { background-color: var(--color-hover-tint); color: var(--color-text); }
+  &:focus-visible { outline: 2px solid var(--color-green); outline-offset: 1px; }
+  &[data-tone='danger']:hover:not(:disabled) { color: var(--color-danger); }
+}
+
+/* A filled button for destructive actions, used only after the person confirms. */
+.btn-danger {
+  background-color: var(--color-danger);
+  color: var(--color-text-inverse);
+
+  &:hover:not(:disabled) { opacity: 0.9; }
+}
+
+/* Page header shared by the portals: title, one quiet line below, actions on the right. */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.page-header__title { margin-bottom: var(--space-xs); }
+
+.page-header__subtitle {
+  font-size: 0.9375rem;
+  color: var(--color-text-muted);
 }

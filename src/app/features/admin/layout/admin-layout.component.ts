@@ -2,11 +2,13 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { PortalNavItem, PortalShellComponent } from '../../../shared/portal-shell/portal-shell.component';
 import { AdminPaths } from '../admin-paths';
 
-/**
- * Sections appear here as they ship — linking to pages that don't exist yet
- * would only send admins to dead ends.
- */
-const NAV_ITEMS: readonly PortalNavItem[] = [{ label: 'Account', path: AdminPaths.account }];
+/** The console's sections, in the order an admin's day runs. Account lives in the avatar menu. */
+const NAV_ITEMS: readonly PortalNavItem[] = [
+  { label: 'Today', path: AdminPaths.home, exact: true },
+  { label: 'Availability', path: AdminPaths.availability },
+  { label: 'Aaptas', path: AdminPaths.aaptas },
+  { label: 'History', path: AdminPaths.history },
+];
 
 /** The admin console's shell around every signed-in page. */
 @Component({
@@ -18,7 +20,7 @@ const NAV_ITEMS: readonly PortalNavItem[] = [{ label: 'Account', path: AdminPath
     <app-portal-shell
       [navItems]="navItems"
       [homePath]="paths.home"
-      homeLabel="Admin console"
+      homeLabel="Today"
       [profilePath]="paths.account"
       profileLabel="Your account"
     />
