@@ -1,24 +1,15 @@
-/** Epoch timestamp (unit to be confirmed by backend) or ISO-8601 string. */
-export type WireTime = number | string;
+/** Times travel to and from the API as epoch milliseconds (UTC). */
+export type EpochMillis = number;
 
-/**
- * Times are sent to the API as epoch milliseconds. If the backend expects
- * seconds, change this one function.
- */
-export function toEpoch(date: Date): number {
+export function toEpoch(date: Date): EpochMillis {
   return date.getTime();
 }
 
-/**
- * Accepts epoch seconds, epoch milliseconds or ISO strings. Epoch seconds stay
- * below 1e12 until the year 33658, so the magnitude tells the units apart.
- */
-export function fromWireTime(value: WireTime): Date {
-  if (typeof value === 'string') return new Date(value);
-  return new Date(value < 1e12 ? value * 1000 : value);
+export function fromEpoch(millis: EpochMillis): Date {
+  return new Date(millis);
 }
 
-/** Uppercases and joins words with underscores: "client no-show" → "CLIENT_NO_SHOW". */
-export function normaliseEnum(value: string): string {
-  return value.trim().toUpperCase().replace(/[\s-]+/g, '_');
+/** For optional times: `null` stays `null`. */
+export function fromOptionalEpoch(millis: EpochMillis | null | undefined): Date | null {
+  return millis === null || millis === undefined ? null : new Date(millis);
 }

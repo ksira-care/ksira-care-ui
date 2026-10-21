@@ -45,8 +45,8 @@ interface TermsSection {
       margin-top: var(--space-md);
       font-size: 0.875rem;
       color: var(--color-accent);
-      background-color: #fffbeb;
-      border: 1px solid #fde68a;
+      background-color: var(--color-crisis-bg);
+      border: 1px solid var(--color-crisis-border);
       border-radius: var(--radius-md);
       padding: var(--space-sm) var(--space-md);
       display: inline-block;

@@ -59,8 +59,12 @@
                   "with": "src/environments/environment.development.ts"
                 },
                 {
-                  "replace": "src/app/features/therapist/therapist-api.providers.ts",
-                  "with": "src/app/features/therapist/therapist-api.providers.mock.ts"
+                  "replace": "src/app/core/core-api.providers.ts",
+                  "with": "src/app/core/core-api.providers.mock.ts"
+                },
+                {
+                  "replace": "src/app/features/aapta/aapta-api.providers.ts",
+                  "with": "src/app/features/aapta/aapta-api.providers.mock.ts"
                 }
               ]
             },

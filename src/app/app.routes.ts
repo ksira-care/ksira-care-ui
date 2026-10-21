@@ -1,13 +1,28 @@
-import { Routes } from '@angular/router';
+import { Routes, UrlMatchResult, UrlSegment } from '@angular/router';
 import { PublicLayoutComponent } from './layouts/public-layout/public-layout.component';
+
+/** First URL segments served by the signed-in part of the app (see portals.routes.ts). */
+const PORTAL_AREAS: ReadonlySet<string> = new Set(['login', 'aapta', 'admin']);
+
+/**
+ * Matches the sign-in page and the portals without consuming the URL, so their
+ * routes still see `/login`, `/aapta/…`, `/admin/…`. Kept here, not in portals.routes.ts,
+ * so the public site's bundle doesn't pull in the portals.
+ */
+export function matchPortals(segments: UrlSegment[]): UrlMatchResult | null {
+  return segments.length > 0 && PORTAL_AREAS.has(segments[0].path) ? { consumed: [] } : null;
+}
 
 export const routes: Routes = [
   {
-    // Direct-link only — intentionally not linked from the public site.
-    path: 'therapist',
-    loadChildren: () =>
-      import('./features/therapist/therapist.routes').then((m) => m.THERAPIST_ROUTES),
+    // Sign-in and the portals — direct-link only, never linked from the public site.
+    matcher: matchPortals,
+    loadChildren: () => import('./portals.routes').then((m) => m.PORTAL_ROUTES),
   },
+  // The aapta portal used to be the "therapist" portal; keep old links and bookmarks working.
+  { path: 'therapist/login', redirectTo: '/login' },
+  { path: 'therapist', pathMatch: 'full', redirectTo: '/aapta' },
+  { path: 'therapist/:page', redirectTo: '/aapta/:page' },
   {
     path: '',
     component: PublicLayoutComponent,

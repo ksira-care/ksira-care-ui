@@ -1,38 +1,46 @@
 import { HttpClient, HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, map, of, switchMap, throwError } from 'rxjs';
+import { Observable, catchError, map, of, throwError } from 'rxjs';
 import { API_BASE_URL } from '../http/api-base-url';
 import { problemCode } from '../http/problem-details';
+import { fullName } from '../format/person-name';
 import { expectsUnauthenticated } from './auth-http-context';
 import { AuthGateway } from './auth.gateway';
-import { AuthError, AuthErrorCode, AuthenticatedUser, LoginCredentials } from './auth.models';
+import {
+  AuthError,
+  AuthErrorCode,
+  AuthenticatedUser,
+  LoginCredentials,
+  PasswordChange,
+  PasswordChangeError,
+  Role,
+} from './auth.models';
 
 /** Paths relative to the API base, in one place in case the backend renames them. */
 const ENDPOINTS = {
   login: '/auth/login',
   logout: '/auth/logout',
-  /** The signed-in therapist, identified by the session cookie. */
-  profile: '/therapists/me',
+  /** Who is signed in, identified by the session cookie. */
+  session: '/auth/session',
+  password: '/auth/password',
 } as const;
 
-// ── Wire formats (what the API sends) ───────────────────────
+// ── Wire format (what the API sends) ────────────────────────
 
-/** Login only confirms identity; the name comes from the profile. */
-interface LoginResponseDto {
-  readonly therapistId: string;
+/** Both sign-in and the session check answer with this. */
+interface SessionDto {
+  readonly accountId: string;
   readonly email: string;
+  readonly role: 'AAPTA' | 'ADMIN';
+  readonly firstName: string;
+  readonly middleName: string | null;
+  readonly lastName: string;
 }
 
-/** Only the fields sign-in needs; the profile page reads the rest. */
-interface ProfileDto {
-  readonly therapistId: string;
-  readonly email: string;
-  readonly firstName?: string | null;
-  readonly middleName?: string | null;
-  readonly lastName?: string | null;
-  /** Single-string name from the first API draft. */
-  readonly name?: string | null;
-}
+const ROLE_BY_WIRE: Readonly<Record<SessionDto['role'], Role>> = {
+  AAPTA: 'aapta',
+  ADMIN: 'admin',
+};
 
 const ERROR_BY_CODE: Readonly<Record<string, AuthErrorCode>> = {
   INVALID_CREDENTIALS: 'invalid-credentials',
@@ -59,15 +67,16 @@ export class HttpAuthGateway extends AuthGateway {
 
   override login(credentials: LoginCredentials): Observable<AuthenticatedUser> {
     return this.http
-      .post<LoginResponseDto>(this.url('login'), credentials, { context: expectsUnauthenticated() })
+      .post<SessionDto>(this.url('login'), credentials, { context: expectsUnauthenticated() })
       .pipe(
-        switchMap(() => this.getProfile()),
+        map(toUser),
         catchError((error: unknown) => throwError(() => toAuthError(error))),
       );
   }
 
   override fetchCurrentUser(): Observable<AuthenticatedUser | null> {
-    return this.getProfile().pipe(
+    return this.http.get<SessionDto>(this.url('session'), { context: expectsUnauthenticated() }).pipe(
+      map(toUser),
       catchError((error: unknown) =>
         isUnauthorized(error) ? of(null) : throwError(() => toAuthError(error)),
       ),
@@ -83,11 +92,11 @@ export class HttpAuthGateway extends AuthGateway {
       );
   }
 
-  /** Also serves as the "who is signed in?" check — the server identifies the therapist from the cookie. */
-  private getProfile(): Observable<AuthenticatedUser> {
-    return this.http
-      .get<ProfileDto>(this.url('profile'), { context: expectsUnauthenticated() })
-      .pipe(map(toUser));
+  override changePassword(change: PasswordChange): Observable<void> {
+    return this.http.post<void>(this.url('password'), change).pipe(
+      map(() => undefined),
+      catchError((error: unknown) => throwError(() => toPasswordChangeError(error))),
+    );
   }
 
   private url(endpoint: keyof typeof ENDPOINTS): string {
@@ -95,9 +104,11 @@ export class HttpAuthGateway extends AuthGateway {
   }
 }
 
-function toUser(dto: ProfileDto): AuthenticatedUser {
-  const parts = [dto.firstName, dto.middleName, dto.lastName].filter(Boolean);
-  return { id: dto.therapistId, email: dto.email, name: parts.length ? parts.join(' ') : (dto.name ?? '') };
+function toUser(dto: SessionDto): AuthenticatedUser {
+  const role = ROLE_BY_WIRE[dto.role];
+  // A role this app doesn't know can't open any portal; treat it as a failure, not a guess.
+  if (!role) throw new AuthError('unknown');
+  return { id: dto.accountId, email: dto.email, role, name: fullName(dto) };
 }
 
 function isUnauthorized(error: unknown): boolean {
@@ -111,4 +122,11 @@ function toAuthError(error: unknown): AuthError {
   const code = problemCode(error);
   const mapped = (code && ERROR_BY_CODE[code]) || ERROR_BY_STATUS[error.status] || 'unknown';
   return new AuthError(mapped, { cause: error });
+}
+
+function toPasswordChangeError(error: unknown): PasswordChangeError {
+  if (!(error instanceof HttpErrorResponse)) return new PasswordChangeError('unknown', { cause: error });
+  if (error.status === 0) return new PasswordChangeError('network', { cause: error });
+  const incorrect = problemCode(error) === 'CURRENT_PASSWORD_INCORRECT';
+  return new PasswordChangeError(incorrect ? 'current-password-incorrect' : 'unknown', { cause: error });
 }

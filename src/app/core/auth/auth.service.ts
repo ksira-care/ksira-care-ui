@@ -1,7 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, finalize, map, of, shareReplay, tap } from 'rxjs';
 import { AuthGateway } from './auth.gateway';
-import { AuthenticatedUser, LoginCredentials } from './auth.models';
+import { AuthenticatedUser, LoginCredentials, PasswordChange } from './auth.models';
 
 type SessionState =
   | { readonly status: 'unknown' }
@@ -9,7 +9,7 @@ type SessionState =
   | { readonly status: 'authenticated'; readonly user: AuthenticatedUser };
 
 /**
- * Single source of truth for the therapist's session.
+ * Single source of truth for the signed-in user's session, aapta or admin.
  *
  * With httpOnly cookies the client cannot inspect the session itself, so its
  * state starts as `unknown` and is resolved by asking the server once.
@@ -58,6 +58,22 @@ export class AuthService {
     return this.gateway.logout().pipe(
       catchError(() => of(undefined)),
       tap(() => this.setUser(null)),
+    );
+  }
+
+  /**
+   * Changes the password. The server signs out every other device and gives
+   * this one a fresh session cookie, so the user stays signed in here.
+   */
+  changePassword(change: PasswordChange): Observable<void> {
+    return this.gateway.changePassword(change);
+  }
+
+  /** Asks the server again who is signed in, e.g. after they changed their own name. */
+  refresh(): Observable<void> {
+    return this.gateway.fetchCurrentUser().pipe(
+      tap((user) => this.setUser(user)),
+      map(() => undefined),
     );
   }
 

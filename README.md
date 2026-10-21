@@ -72,9 +72,9 @@ Redirects/Rewrites, in this order (the first match wins):
 | `/api/*` | `https://ksira-care-backend.onrender.com/api/*` | Rewrite |
 | `/*` | `/index.html` | Rewrite |
 
-The first rule keeps the therapist portal's API on the site's own domain, so the session cookie
+The first rule keeps the portals' API on the site's own domain, so the session cookie
 is first-party (Safari blocks third-party cookies) and no CORS is needed. The second serves the
-app for every client-side route (e.g. refreshing `/therapist/login`).
+app for every client-side route (e.g. refreshing `/login`).
 
 DNS is at GoDaddy: `A @ → 216.24.57.1`, `CNAME www → ksira-care-ui.onrender.com`.
 Backend and database setup: see the `ksira-care-backend` README.

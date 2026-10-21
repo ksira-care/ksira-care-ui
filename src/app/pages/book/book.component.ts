@@ -20,15 +20,6 @@ type BookingStep = 'form' | 'success';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-/** Returns the browser's IANA time zone string (e.g. "Europe/London"). */
-function getBrowserTimezone(): string {
-  try {
-    return Intl.DateTimeFormat().resolvedOptions().timeZone;
-  } catch {
-    return '';
-  }
-}
-
 @Component({
   selector: 'app-book',
   standalone: true,
@@ -142,31 +133,6 @@ function getBrowserTimezone(): string {
                 </div>
               </div>
 
-              <!-- Timezone -->
-              <div class="form-group">
-                <label for="timezone" class="form-label">
-                  Time zone
-                  <span class="required" aria-label="required">*</span>
-                </label>
-                <select
-                  id="timezone"
-                  formControlName="timezone"
-                  class="form-control"
-                  [class.invalid]="isInvalid('timezone')"
-                  [attr.aria-describedby]="isInvalid('timezone') ? 'timezone-error' : null"
-                  [attr.aria-invalid]="isInvalid('timezone')"
-                >
-                  <option value="" disabled>Select your time zone</option>
-                  @for (tz of timezones; track tz.value) {
-                    <option [value]="tz.value">{{ tz.label }}</option>
-                  }
-                </select>
-                @if (isInvalid('timezone')) {
-                  <span id="timezone-error" class="form-error" role="alert">
-                    Please select your time zone.
-                  </span>
-                }
-              </div>
 
               <!-- Notes -->
               <div class="form-group">
@@ -396,7 +362,7 @@ function getBrowserTimezone(): string {
       width: 28px;
       height: 28px;
       background-color: var(--color-cta);
-      color: white;
+      color: var(--color-green-text);
       border-radius: 50%;
       font-family: var(--font-sans);
       font-size: 0.8125rem;
@@ -502,20 +468,6 @@ function getBrowserTimezone(): string {
       gap: var(--space-sm);
     }
 
-    .spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(255, 255, 255, 0.35);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.6s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
     .payment-note {
       font-size: 0.8125rem;
       color: var(--color-text-muted);
@@ -571,7 +523,7 @@ function getBrowserTimezone(): string {
       justify-content: center;
       width: 56px;
       height: 56px;
-      background-color: rgba(44, 95, 74, 0.12);
+      background-color: var(--color-green-tint);
       color: var(--color-cta);
       border-radius: 50%;
       font-size: 1.5rem;
@@ -601,43 +553,12 @@ export class BookComponent implements OnInit {
 
   protected bookingForm!: FormGroup;
 
-  protected readonly timezones = [
-    { value: 'Pacific/Midway', label: '(UTC-11:00) Midway Island' },
-    { value: 'Pacific/Honolulu', label: '(UTC-10:00) Hawaii' },
-    { value: 'America/Anchorage', label: '(UTC-09:00) Alaska' },
-    { value: 'America/Los_Angeles', label: '(UTC-08:00) Pacific Time (US & Canada)' },
-    { value: 'America/Denver', label: '(UTC-07:00) Mountain Time (US & Canada)' },
-    { value: 'America/Chicago', label: '(UTC-06:00) Central Time (US & Canada)' },
-    { value: 'America/New_York', label: '(UTC-05:00) Eastern Time (US & Canada)' },
-    { value: 'America/Halifax', label: '(UTC-04:00) Atlantic Time (Canada)' },
-    { value: 'America/Argentina/Buenos_Aires', label: '(UTC-03:00) Buenos Aires' },
-    { value: 'Atlantic/South_Georgia', label: '(UTC-02:00) South Georgia' },
-    { value: 'Atlantic/Cape_Verde', label: '(UTC-01:00) Cape Verde' },
-    { value: 'Europe/London', label: '(UTC+00:00) London, Dublin' },
-    { value: 'Europe/Paris', label: '(UTC+01:00) Paris, Berlin, Rome' },
-    { value: 'Europe/Helsinki', label: '(UTC+02:00) Helsinki, Athens' },
-    { value: 'Europe/Moscow', label: '(UTC+03:00) Moscow, Riyadh' },
-    { value: 'Asia/Dubai', label: '(UTC+04:00) Dubai, Abu Dhabi' },
-    { value: 'Asia/Karachi', label: '(UTC+05:00) Karachi, Islamabad' },
-    { value: 'Asia/Kolkata', label: '(UTC+05:30) Mumbai, New Delhi' },
-    { value: 'Asia/Dhaka', label: '(UTC+06:00) Dhaka' },
-    { value: 'Asia/Bangkok', label: '(UTC+07:00) Bangkok, Jakarta' },
-    { value: 'Asia/Shanghai', label: '(UTC+08:00) Beijing, Singapore' },
-    { value: 'Asia/Tokyo', label: '(UTC+09:00) Tokyo, Seoul' },
-    { value: 'Australia/Sydney', label: '(UTC+10:00) Sydney, Melbourne' },
-    { value: 'Pacific/Auckland', label: '(UTC+12:00) Auckland' },
-  ];
-
   constructor(private readonly fb: FormBuilder) {}
 
   ngOnInit(): void {
-    const detectedTz = getBrowserTimezone();
-    const matchedTz = this.timezones.find((tz) => tz.value === detectedTz)?.value ?? '';
-
     this.bookingForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
       email: ['', [Validators.required, Validators.pattern(EMAIL_PATTERN)]],
-      timezone: [matchedTz, Validators.required],
       notes: ['', Validators.maxLength(500)],
       consent: [false, Validators.requiredTrue],
     });

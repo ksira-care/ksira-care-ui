@@ -283,7 +283,7 @@ interface Topic { label: string; }
 
     /* White sub-card */
     .hero__sub-card {
-      background-color: #ffffff;
+      background-color: var(--color-surface);
       border-radius: var(--radius-lg);
       padding: 1.125rem 1.25rem 1.25rem;
       display: flex;
@@ -438,7 +438,7 @@ interface Topic { label: string; }
     }
 
     .topic-item {
-      background-color: #ffffff;
+      background-color: var(--color-surface);
       border: 1px solid rgba(0, 0, 0, 0.07);
       border-radius: var(--radius-pill);
       padding: 0.5rem 1.25rem;
@@ -478,7 +478,7 @@ interface Topic { label: string; }
     }
 
     .pricing-card {
-      background-color: #ffffff;
+      background-color: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-xl);
       padding: 2.5rem 2rem 2rem;

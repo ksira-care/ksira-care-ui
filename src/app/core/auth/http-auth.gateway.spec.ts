@@ -4,17 +4,18 @@ import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { API_BASE_URL } from '../http/api-base-url';
 import { EXPECTS_UNAUTHENTICATED } from './auth-http-context';
-import { AuthError } from './auth.models';
+import { AuthError, PasswordChangeError } from './auth.models';
 import { HttpAuthGateway } from './http-auth.gateway';
 
-const PROFILE = {
-  therapistId: 'th_1',
+const SESSION = {
+  accountId: 'ap_1',
   email: 'aanya@ksiracare.com',
+  role: 'AAPTA',
   firstName: 'Aanya',
-  middleName: null,
+  middleName: 'Priya',
   lastName: 'Mehta',
 };
-const USER = { id: 'th_1', email: 'aanya@ksiracare.com', name: 'Aanya Mehta' };
+const USER = { id: 'ap_1', email: 'aanya@ksiracare.com', name: 'Aanya Priya Mehta', role: 'aapta' };
 
 describe('HttpAuthGateway', () => {
   let gateway: HttpAuthGateway;
@@ -36,17 +37,29 @@ describe('HttpAuthGateway', () => {
   afterEach(() => http.verify());
 
   describe('login', () => {
-    it('posts the credentials, then loads the profile for the name', async () => {
-      const result = firstValueFrom(gateway.login({ email: PROFILE.email, password: 'secret' }));
+    it('posts the credentials and learns who signed in, and as what', async () => {
+      const result = firstValueFrom(gateway.login({ email: SESSION.email, password: 'secret' }));
 
       const login = http.expectOne({ method: 'POST', url: '/api/auth/login' });
-      expect(login.request.body).toEqual({ email: PROFILE.email, password: 'secret' });
+      expect(login.request.body).toEqual({ email: SESSION.email, password: 'secret' });
       expect(login.request.context.get(EXPECTS_UNAUTHENTICATED)).toBe(true);
-      login.flush({ therapistId: 'th_1', email: PROFILE.email });
-
-      http.expectOne({ method: 'GET', url: '/api/therapists/me' }).flush(PROFILE);
+      login.flush(SESSION);
 
       expect(await result).toEqual(USER);
+    });
+
+    it('recognises an admin', async () => {
+      const result = firstValueFrom(gateway.login({ email: 'meera@ksiracare.com', password: 'secret' }));
+      http.expectOne('/api/auth/login').flush({ ...SESSION, role: 'ADMIN', middleName: null });
+
+      expect(await result).toMatchObject({ role: 'admin', name: 'Aanya Mehta' });
+    });
+
+    it('refuses a role the app has no portal for', async () => {
+      const result = firstValueFrom(gateway.login({ email: 'a@k.com', password: 'x' }));
+      http.expectOne('/api/auth/login').flush({ ...SESSION, role: 'SUPERUSER' });
+
+      await expect(result).rejects.toMatchObject({ code: 'unknown' });
     });
 
     it.each([
@@ -81,22 +94,13 @@ describe('HttpAuthGateway', () => {
     });
   });
 
-  it('falls back to a single name field', async () => {
-    const result = firstValueFrom(gateway.fetchCurrentUser());
-    http
-      .expectOne('/api/therapists/me')
-      .flush({ therapistId: 'th_1', email: 'aanya@ksiracare.com', name: 'Aanya Mehta' });
-
-    expect((await result)?.name).toBe('Aanya Mehta');
-  });
-
   describe('fetchCurrentUser', () => {
-    it('returns the profile when a session exists', async () => {
+    it('returns the user when a session exists', async () => {
       const result = firstValueFrom(gateway.fetchCurrentUser());
 
-      const req = http.expectOne({ method: 'GET', url: '/api/therapists/me' });
+      const req = http.expectOne({ method: 'GET', url: '/api/auth/session' });
       expect(req.request.context.get(EXPECTS_UNAUTHENTICATED)).toBe(true);
-      req.flush(PROFILE);
+      req.flush(SESSION);
 
       expect(await result).toEqual(USER);
     });
@@ -104,7 +108,9 @@ describe('HttpAuthGateway', () => {
     it('returns null when there is no session', async () => {
       const result = firstValueFrom(gateway.fetchCurrentUser());
 
-      http.expectOne('/api/therapists/me').flush({ code: 'UNAUTHENTICATED' }, { status: 401, statusText: 'Unauthorized' });
+      http
+        .expectOne('/api/auth/session')
+        .flush({ code: 'UNAUTHENTICATED' }, { status: 401, statusText: 'Unauthorized' });
 
       expect(await result).toBeNull();
     });
@@ -116,5 +122,31 @@ describe('HttpAuthGateway', () => {
     http.expectOne({ method: 'POST', url: '/api/auth/logout' }).flush(null, { status: 204, statusText: 'No Content' });
 
     await expect(result).resolves.toBeUndefined();
+  });
+
+  describe('changePassword', () => {
+    const change = { currentPassword: 'old-password', newPassword: 'new-password' };
+
+    it('posts the current and new password', async () => {
+      const result = firstValueFrom(gateway.changePassword(change));
+
+      const req = http.expectOne({ method: 'POST', url: '/api/auth/password' });
+      expect(req.request.body).toEqual(change);
+      req.flush(null, { status: 204, statusText: 'No Content' });
+
+      await expect(result).resolves.toBeUndefined();
+    });
+
+    it('says when the current password is wrong', async () => {
+      const result = firstValueFrom(gateway.changePassword(change));
+
+      http
+        .expectOne('/api/auth/password')
+        .flush({ code: 'CURRENT_PASSWORD_INCORRECT' }, { status: 422, statusText: 'Unprocessable' });
+
+      const error = await result.catch((e: unknown) => e);
+      expect(error).toBeInstanceOf(PasswordChangeError);
+      expect(error).toMatchObject({ code: 'current-password-incorrect' });
+    });
   });
 });

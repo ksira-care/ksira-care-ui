@@ -17,12 +17,12 @@ describe('MockAuthGateway', () => {
     return promise;
   }
 
-  it('signs in the demo therapist and remembers the session', async () => {
+  it('signs in the demo aapta and remembers the session', async () => {
     const user = await settle(
-      firstValueFrom(gateway.login({ email: 'therapist@ksiracare.com', password: 'password123' })),
+      firstValueFrom(gateway.login({ email: 'aapta@ksiracare.com', password: 'password123' })),
     );
 
-    expect(user.name).toBe('Aanya Mehta');
+    expect(user).toMatchObject({ name: 'Aanya Mehta', role: 'aapta' });
     expect(await settle(firstValueFrom(gateway.fetchCurrentUser()))).toEqual(user);
   });
 
@@ -39,10 +39,34 @@ describe('MockAuthGateway', () => {
 
   it('forgets the session on logout', async () => {
     await settle(
-      firstValueFrom(gateway.login({ email: 'therapist@ksiracare.com', password: 'password123' })),
+      firstValueFrom(gateway.login({ email: 'aapta@ksiracare.com', password: 'password123' })),
     );
     await settle(firstValueFrom(gateway.logout()));
 
     expect(await settle(firstValueFrom(gateway.fetchCurrentUser()))).toBeNull();
+  });
+
+  it('signs in the demo admin as an admin', async () => {
+    const user = await settle(
+      firstValueFrom(gateway.login({ email: 'admin@ksiracare.com', password: 'password123' })),
+    );
+
+    expect(user.role).toBe('admin');
+  });
+
+  it('changes the password only with the right current one', async () => {
+    await settle(firstValueFrom(gateway.login({ email: 'aapta@ksiracare.com', password: 'password123' })));
+
+    const wrong = firstValueFrom(gateway.changePassword({ currentPassword: 'nope', newPassword: 'new-password' }));
+    const assertion = expect(wrong).rejects.toMatchObject({ code: 'current-password-incorrect' });
+    await vi.runAllTimersAsync();
+    await assertion;
+
+    await settle(firstValueFrom(gateway.changePassword({ currentPassword: 'password123', newPassword: 'new-password' })));
+    await settle(firstValueFrom(gateway.logout()));
+    const user = await settle(
+      firstValueFrom(gateway.login({ email: 'aapta@ksiracare.com', password: 'new-password' })),
+    );
+    expect(user.email).toBe('aapta@ksiracare.com');
   });
 });
