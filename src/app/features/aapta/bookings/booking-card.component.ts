@@ -9,6 +9,7 @@ import {
   formatWeekdayDayMonth,
 } from '../../../core/time/portal-time';
 import {
+  DisplayStatus,
   STATUS_LABELS,
   displayStatus,
   formatEndedAgo,
@@ -17,6 +18,15 @@ import {
 } from './booking-format';
 import { canMark, canUndoMark } from './booking-rules';
 import { Booking, AaptaSetStatus } from './booking.models';
+
+/** The colour each status's badge takes (see `.badge` in styles.scss). */
+const BADGE_TONES: Partial<Record<DisplayStatus, string>> = {
+  'needs-marking': 'warning',
+  'in-progress': 'active',
+  completed: 'success',
+  'client-no-show': 'danger',
+  'aapta-no-show': 'warning',
+};
 
 const weekdayShort = new Intl.DateTimeFormat('en-GB', { weekday: 'short', timeZone: PORTAL_TIME_ZONE });
 const monthShort = new Intl.DateTimeFormat('en-GB', { month: 'short', timeZone: PORTAL_TIME_ZONE });
@@ -46,10 +56,10 @@ const dayNumber = new Intl.DateTimeFormat('en-GB', { day: 'numeric', timeZone: P
           <span class="booking__time">{{ timeRange() }}</span>
           <span class="booking__relative">{{ relative() }}</span>
           @if (badge(); as badge) {
-            <span class="badge" [attr.data-status]="status()">{{ badge }}</span>
+            <span class="badge" [attr.data-tone]="badgeTone()">{{ badge }}</span>
           }
           @if (booking().rescheduledFrom) {
-            <span class="badge" data-status="rescheduled">Rescheduled by admin</span>
+            <span class="badge" data-tone="info">Rescheduled by admin</span>
           }
         </h3>
 
@@ -242,42 +252,6 @@ const dayNumber = new Intl.DateTimeFormat('en-GB', { day: 'numeric', timeZone: P
     }
 
     .booking__hint--error { color: var(--color-danger); }
-
-    .badge {
-      display: inline-block;
-      padding: 0.15rem 0.6rem;
-      border-radius: var(--radius-pill);
-      font-size: 0.8125rem;
-      font-weight: 600;
-      white-space: nowrap;
-      background-color: var(--color-surface-muted);
-      color: var(--color-text-body);
-
-      &[data-status='needs-marking'] {
-        background-color: var(--color-crisis-bg);
-        color: var(--color-crisis);
-      }
-      &[data-status='in-progress'] {
-        background-color: var(--color-green);
-        color: var(--color-green-text);
-      }
-      &[data-status='completed'] {
-        background-color: var(--color-green-light);
-        color: var(--color-green);
-      }
-      &[data-status='client-no-show'] {
-        background-color: var(--color-danger-bg);
-        color: var(--color-danger);
-      }
-      &[data-status='aapta-no-show'] {
-        background-color: var(--color-crisis-bg);
-        color: var(--color-crisis);
-      }
-      &[data-status='rescheduled'] {
-        background-color: var(--color-info-bg);
-        color: var(--color-info);
-      }
-    }
   `,
 })
 export class BookingCardComponent {
@@ -308,6 +282,8 @@ export class BookingCardComponent {
     if (status === 'needs-marking') return `· ${formatEndedAgo(this.booking(), this.now()).toLowerCase()}`;
     return '';
   });
+
+  protected readonly badgeTone = computed(() => BADGE_TONES[this.status()] ?? null);
 
   /** Only states worth calling out; plain "scheduled" needs no badge. */
   protected readonly badge = computed(() => {

@@ -422,3 +422,22 @@ ul, ol { list-style: none; }
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* A small status label: data-tone = success | danger | warning | info | booked | active, or none. */
+.badge {
+  display: inline-block;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+  background-color: var(--color-surface-muted);
+  color: var(--color-text-body);
+
+  &[data-tone='success'] { background-color: var(--color-green-light); color: var(--color-green); }
+  &[data-tone='danger'] { background-color: var(--color-danger-bg); color: var(--color-danger); }
+  &[data-tone='warning'] { background-color: var(--color-crisis-bg); color: var(--color-crisis); }
+  &[data-tone='info'] { background-color: var(--color-info-bg); color: var(--color-info); }
+  &[data-tone='booked'] { background-color: var(--color-booked-bg); color: var(--color-booked); }
+  &[data-tone='active'] { background-color: var(--color-green); color: var(--color-green-text); }
+}
