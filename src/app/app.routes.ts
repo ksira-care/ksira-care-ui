@@ -47,8 +47,8 @@ export const routes: Routes = [
       },
       {
         path: 'book',
-        loadComponent: () =>
-          import('./pages/book/book.component').then((m) => m.BookComponent),
+        loadChildren: () =>
+          import('./features/booking/booking.routes').then((m) => m.BOOKING_ROUTES),
         title: 'Book a Session — Ksira Care',
       },
       {
