@@ -69,6 +69,10 @@
                 {
                   "replace": "src/app/features/admin/admin-api.providers.ts",
                   "with": "src/app/features/admin/admin-api.providers.mock.ts"
+                },
+                {
+                  "replace": "src/app/features/booking/booking-api.providers.ts",
+                  "with": "src/app/features/booking/booking-api.providers.mock.ts"
                 }
               ]
             },

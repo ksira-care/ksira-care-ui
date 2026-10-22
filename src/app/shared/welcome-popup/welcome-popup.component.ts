@@ -137,18 +137,17 @@ let _shownThisLoad = false;
     }
 
     /* ── Dialog card ───────────────────────────── */
+    /* Centred by top/left 50% and the transform; no insets, so the card is as tall as its content. */
     .popup {
       position: fixed;
-      inset: 0;
       z-index: 201;
-      margin: auto;
       width: min(680px, calc(100vw - 2rem));
       max-height: calc(100dvh - 2rem);
       overflow-y: auto;
       background-color: var(--color-surface);
       border-radius: 20px;
       border: 1px solid var(--color-border);
-      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--shadow-md);
       padding: 3rem 3.5rem 2.5rem;
       display: flex;
       flex-direction: column;

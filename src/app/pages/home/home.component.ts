@@ -149,16 +149,25 @@ interface Topic { label: string; }
   `,
   styles: `
     /* ── HERO ──────────────────────────────────────
-       Fills the viewport so "How it works" is NOT
-       visible on load — exactly like Lovable.
+       On landscape screens (laptops, monitors) it fills the
+       first screen, so "How it works" waits below the fold —
+       capped, so very tall monitors don't get empty bands. On
+       portrait screens (phones, iPads upright) it is as tall as
+       its content.
     ─────────────────────────────────────────────── */
     .hero {
-      /* viewport height minus the sticky navbar */
-      min-height: calc(100dvh - var(--nav-height));
       display: flex;
       align-items: center;
       background-color: var(--color-bg);
       padding-block: 3rem;
+
+      @media (min-aspect-ratio: 1/1) {
+        min-height: min(calc(100dvh - var(--nav-height)), 56rem);
+      }
+
+      @media (max-aspect-ratio: 1/1) {
+        padding-block: 4rem 3rem;
+      }
     }
 
     .hero__inner {

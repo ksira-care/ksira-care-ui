@@ -5,4 +5,9 @@ export interface Environment {
    * treated as third-party and blocked by Safari.
    */
   readonly apiBaseUrl: string;
+  /**
+   * Whether the booking form takes payment (Razorpay). While off, "Confirm
+   * booking" books straight away, so the team can test with real bookings.
+   */
+  readonly paymentsEnabled: boolean;
 }

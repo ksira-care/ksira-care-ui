@@ -85,7 +85,7 @@
   --transition: 180ms ease;
 
   /* Layout */
-  --max-width:  1200px;
+  --max-width:  75rem;   /* 1200px at the default 16px; grows with the text on big screens */
   --nav-height: 64px;
 }
 
@@ -95,6 +95,10 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html { font-size: 16px; scroll-behavior: smooth; }
+
+/* Big monitors: scale everything up a little so the page doesn't sit small in the middle. */
+@media (min-width: 1920px) { html { font-size: 17px; } }
+@media (min-width: 2400px) { html { font-size: 18px; } }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

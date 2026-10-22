@@ -1,29 +1,63 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  OnInit,
-  signal,
-} from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { rxResource, takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { finalize, of } from 'rxjs';
+import { ApiError } from '../../core/http/api-error';
+import { LanguagesGateway } from '../../core/languages/languages.gateway';
+import { DAY_MS, PORTAL_TIME_ZONE } from '../../core/time/portal-time';
+import { BookingGateway } from '../../features/booking/booking.gateway';
 import {
-  CalendarPickerComponent,
-  CalendarSelection,
-} from '../../shared/calendar-picker/calendar-picker.component';
-
-type BookingStep = 'form' | 'success';
+  BookingConfirmation,
+  LOOKAHEAD_DAYS,
+  NAME_LENGTH,
+  NOTES_MAX,
+} from '../../features/booking/booking.models';
+import { CalendarPickerComponent } from '../../shared/calendar-picker/calendar-picker.component';
+import { LanguagePickerComponent } from '../../shared/ui/language-picker.component';
+import { LoadErrorComponent } from '../../shared/ui/load-error.component';
+import { LoadingRowsComponent } from '../../shared/ui/loading-rows.component';
+import { environment } from '../../../environments/environment';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PRICE = '₹899';
 
+/** Why booking failed, in words the client can act on. */
+const FAILURES: Readonly<Record<string, string>> = {
+  TIME_NOT_AVAILABLE: 'Sorry, that time was just taken. Please pick another.',
+  INVALID_SLOT_TIME: "That time can't be booked any more. Please pick another.",
+  RATE_LIMITED: "You've made several bookings in a short time. Please try again in an hour.",
+  NETWORK: "We couldn't reach our server. Check your connection and try again.",
+};
+
+const longDay = new Intl.DateTimeFormat('en-GB', { weekday: 'long', day: 'numeric', month: 'long', timeZone: PORTAL_TIME_ZONE });
+/** "11:00 AM", as on the time buttons. */
+const clockTime = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone: PORTAL_TIME_ZONE });
+
+/** The visitor's own clock, for those outside India. */
+const localWhen = new Intl.DateTimeFormat(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+
+/** India is UTC+5:30 all year, so this compares any moment's offset with it. */
+const IST_OFFSET_MINUTES = -330;
+
+/**
+ * Booking a session: the client picks the languages they're comfortable in —
+ * which decides the free times — then a time, tells us a little about
+ * themselves, and confirms. The booking arrives for an admin to give to an
+ * aapta. Payment (Razorpay) is switched off for now (`paymentsEnabled`), so
+ * confirming books straight away.
+ */
 @Component({
   selector: 'app-book',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink, CalendarPickerComponent],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    CalendarPickerComponent,
+    LanguagePickerComponent,
+    LoadErrorComponent,
+    LoadingRowsComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <!-- Crisis banner -->
@@ -38,40 +72,78 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     <section class="section" aria-labelledby="book-heading">
       <div class="container book-layout">
 
-        @if (step() === 'form') {
+        @if (confirmation(); as booked) {
+          <div class="success-state" role="status" aria-live="polite" aria-labelledby="success-heading">
+            <div class="success-icon" aria-hidden="true">✓</div>
+            <h1 id="success-heading" class="success-state__title">You're booked.</h1>
+            <p class="success-state__body">
+              <strong>{{ when(booked.start) }} IST</strong>. We'll email the video link to
+              <strong>{{ bookedEmail() }}</strong> before your session.
+            </p>
+            <a routerLink="/" class="btn btn-outline success-state__home">Back to home</a>
+          </div>
+        } @else {
           <div class="book-header">
             <span class="section-label">Book Now</span>
-            <h1 id="book-heading" class="section-title">
-              Schedule your session.
-            </h1>
+            <h1 id="book-heading" class="section-title">Schedule your session.</h1>
             <p class="section-body">
-              A 60-minute one-to-one conversation. ₹899, paid upfront. Choose a
-              time that works in your zone.
+              A 60-minute one-to-one conversation. {{ price }}, paid upfront. Choose
+              the languages you're comfortable in and a time that suits you.
             </p>
           </div>
 
-          <form
-            [formGroup]="bookingForm"
-            (ngSubmit)="onSubmit()"
-            class="book-form"
-            novalidate
-            aria-label="Session booking form"
-          >
-            <!-- Step 1: Pick a time -->
+          <form [formGroup]="form" (ngSubmit)="submit()" class="book-form" novalidate aria-label="Session booking form">
+            <!-- Step 1: languages and a time -->
             <fieldset class="form-section">
               <legend class="form-section__legend">
                 <span class="form-section__number" aria-hidden="true">1</span>
                 Pick a time
               </legend>
 
-              <app-calendar-picker
-                (selectionChange)="onCalendarChange($event)"
-              />
-
-              @if (calendarTouched() && !selectedSlot()) {
-                <span class="form-error" role="alert">
-                  Please select a date and time before continuing.
+              <div class="form-group book-languages">
+                <span class="form-label" id="book-languages-label">
+                  Which languages are you comfortable speaking? <span class="required" aria-hidden="true">*</span>
                 </span>
+                @if (languages.hasValue()) {
+                  <app-language-picker
+                    [languages]="languages.value()"
+                    formControlName="languages"
+                    labelledBy="book-languages-label"
+                    [describedBy]="isInvalid('languages') ? 'book-languages-error' : null"
+                  />
+                } @else if (languages.error()) {
+                  <app-load-error message="We couldn't load the languages." (retry)="languages.reload()" />
+                } @else {
+                  <app-loading-rows label="Loading languages…" [rows]="1" />
+                }
+                @if (isInvalid('languages')) {
+                  <span id="book-languages-error" class="form-error" role="alert">Choose at least one language.</span>
+                }
+              </div>
+
+              @if (!chosenLanguages().length) {
+                <p class="book-empty">Choose a language to see the times we're free.</p>
+              } @else if (hours.hasValue()) {
+                @if (hours.value().length) {
+                  <app-calendar-picker [hours]="hours.value()" [selected]="start()" (selectedChange)="start.set($event)" />
+                  <p class="book-zone">
+                    All times are India time (IST).
+                    @if (localEquivalent(); as local) { That's <strong>{{ local }}</strong> where you are. }
+                  </p>
+                } @else {
+                  <p class="book-empty">
+                    No free times in the next {{ lookaheadDays }} days for these languages. Try adding another
+                    language, or check back soon.
+                  </p>
+                }
+              } @else if (hours.error()) {
+                <app-load-error message="We couldn't load the free times." (retry)="hours.reload()" />
+              } @else {
+                <app-loading-rows label="Finding free times…" [rows]="3" />
+              }
+
+              @if (attempted() && !start()) {
+                <span class="form-error" role="alert">Please pick a date and time.</span>
               }
             </fieldset>
 
@@ -83,158 +155,99 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
               </legend>
 
               <div class="form-row">
-                <!-- Name -->
                 <div class="form-group">
-                  <label for="name" class="form-label">
-                    Your name
-                    <span class="required" aria-label="required">*</span>
-                  </label>
-                  <input
-                    id="name"
-                    type="text"
-                    formControlName="name"
-                    class="form-control"
-                    [class.invalid]="isInvalid('name')"
-                    placeholder="Jane Smith"
-                    autocomplete="name"
-                    [attr.aria-describedby]="isInvalid('name') ? 'name-error' : null"
-                    [attr.aria-invalid]="isInvalid('name')"
-                  />
+                  <label for="name" class="form-label">Your name <span class="required" aria-hidden="true">*</span></label>
+                  <input id="name" type="text" formControlName="name" class="form-control" autocomplete="name"
+                         placeholder="Jane Smith" [attr.maxlength]="nameMax"
+                         [class.invalid]="isInvalid('name')" [attr.aria-invalid]="isInvalid('name')"
+                         [attr.aria-describedby]="isInvalid('name') ? 'name-error' : null" />
                   @if (isInvalid('name')) {
-                    <span id="name-error" class="form-error" role="alert">
-                      {{ getError('name') }}
-                    </span>
+                    <span id="name-error" class="form-error" role="alert">Please enter your name ({{ nameMin }} or more letters).</span>
                   }
                 </div>
 
-                <!-- Email -->
                 <div class="form-group">
-                  <label for="email" class="form-label">
-                    Email
-                    <span class="required" aria-label="required">*</span>
-                  </label>
-                  <input
-                    id="email"
-                    type="email"
-                    formControlName="email"
-                    class="form-control"
-                    [class.invalid]="isInvalid('email')"
-                    placeholder="jane@example.com"
-                    autocomplete="email"
-                    inputmode="email"
-                    [attr.aria-describedby]="isInvalid('email') ? 'email-error' : null"
-                    [attr.aria-invalid]="isInvalid('email')"
-                  />
+                  <label for="email" class="form-label">Email <span class="required" aria-hidden="true">*</span></label>
+                  <input id="email" type="email" formControlName="email" class="form-control" autocomplete="email"
+                         inputmode="email" placeholder="jane@example.com"
+                         [class.invalid]="isInvalid('email')" [attr.aria-invalid]="isInvalid('email')"
+                         [attr.aria-describedby]="isInvalid('email') ? 'email-error' : 'email-hint'" />
                   @if (isInvalid('email')) {
-                    <span id="email-error" class="form-error" role="alert">
-                      {{ getError('email') }}
-                    </span>
+                    <span id="email-error" class="form-error" role="alert">Please enter a valid email address.</span>
+                  } @else {
+                    <span id="email-hint" class="form-label-hint">We'll send the video link here.</span>
                   }
                 </div>
               </div>
 
-
-              <!-- Notes -->
               <div class="form-group">
                 <label for="notes" class="form-label">
-                  What would you like from this session?
-                  <span class="form-label-hint">(optional)</span>
+                  What would you like from this session? <span class="form-label-hint">(optional)</span>
                 </label>
-                <textarea
-                  id="notes"
-                  formControlName="notes"
-                  class="form-control"
-                  rows="4"
-                  placeholder="You don't have to share anything here — it's entirely optional."
-                  maxlength="500"
-                  [attr.aria-describedby]="'notes-hint'"
-                ></textarea>
-                <span id="notes-hint" class="form-hint">
-                  {{ bookingForm.get('notes')?.value?.length ?? 0 }} / 500
-                </span>
+                <textarea id="notes" formControlName="notes" class="form-control" rows="4" [attr.maxlength]="notesMax"
+                          placeholder="You don't have to share anything here — it's entirely optional."
+                          aria-describedby="notes-hint"></textarea>
+                <span id="notes-hint" class="form-hint">{{ notesLength() }} / {{ notesMax }}</span>
               </div>
 
-              <!-- Consent -->
               <div class="form-group consent-group">
                 <label class="consent-label" [class.invalid]="isInvalid('consent')">
-                  <input
-                    type="checkbox"
-                    formControlName="consent"
-                    class="consent-checkbox"
-                    [attr.aria-describedby]="isInvalid('consent') ? 'consent-error' : null"
-                    [attr.aria-invalid]="isInvalid('consent')"
-                  />
+                  <input type="checkbox" formControlName="consent" class="consent-checkbox"
+                         [attr.aria-describedby]="isInvalid('consent') ? 'consent-error' : null"
+                         [attr.aria-invalid]="isInvalid('consent')" />
                   <span>
                     I understand that Ksira Care offers private conversations
                     with a listening companion only — not therapy, counselling,
                     medical advice or crisis support.
-                    <span class="required" aria-label="required">*</span>
+                    <span class="required" aria-hidden="true">*</span>
                   </span>
                 </label>
                 @if (isInvalid('consent')) {
-                  <span id="consent-error" class="form-error" role="alert">
-                    You must accept this to continue.
-                  </span>
+                  <span id="consent-error" class="form-error" role="alert">You must accept this to continue.</span>
                 }
               </div>
             </fieldset>
 
-            <!-- Step 3: Pay -->
+            <!-- Step 3: Pay and confirm -->
             <fieldset class="form-section">
               <legend class="form-section__legend">
                 <span class="form-section__number" aria-hidden="true">3</span>
-                Pay and confirm
+                {{ paymentsEnabled ? 'Pay and confirm' : 'Confirm' }}
               </legend>
 
               <div class="payment-summary" role="group" aria-label="Payment summary">
                 <div class="payment-summary__row">
                   <span>60-minute session</span>
-                  <span class="payment-summary__price">₹899</span>
+                  <span class="payment-summary__price">{{ price }}</span>
                 </div>
-                <div class="payment-placeholder" aria-label="Payment form placeholder">
+                <div class="payment-placeholder">
                   <span aria-hidden="true">💳</span>
-                  <p>Stripe / PayPal integration</p>
+                  <p>Secure payment by Razorpay</p>
                   <p class="payment-placeholder__sub">
-                    Secure payment form appears here
+                    {{ paymentsEnabled ? 'UPI, cards and netbanking' : 'Coming soon — no payment is taken for now.' }}
                   </p>
                 </div>
               </div>
 
-              <button
-                type="submit"
-                class="btn btn-primary submit-btn"
-                [disabled]="isSubmitting()"
-                [attr.aria-busy]="isSubmitting()"
-              >
-                @if (isSubmitting()) {
+              @if (failure(); as failure) {
+                <p class="notice" data-tone="error" role="alert">{{ failure }}</p>
+              }
+
+              <button type="submit" class="btn btn-primary submit-btn" [disabled]="submitting()" [attr.aria-busy]="submitting()">
+                @if (submitting()) {
                   <span class="spinner" aria-hidden="true"></span>
-                  Processing…
+                  Booking…
                 } @else {
-                  Pay ₹899 and Book
+                  {{ paymentsEnabled ? 'Pay ' + price + ' and Book' : 'Confirm booking' }}
                 }
               </button>
 
               <p class="payment-note">
-                Payment is processed securely. You'll receive a confirmation email.
+                {{ paymentsEnabled ? "Payment is processed securely. You'll receive a confirmation email."
+                                   : "We'll email you the video link before your session." }}
               </p>
             </fieldset>
           </form>
-        }
-
-        @if (step() === 'success') {
-          <div class="success-state" role="status" aria-live="polite" aria-labelledby="success-heading">
-            <div class="success-icon" aria-hidden="true">✓</div>
-            <h1 id="success-heading" class="success-state__title">
-              You're booked.
-            </h1>
-            <p class="success-state__body">
-              A confirmation has been sent to
-              <strong>{{ confirmedEmail() }}</strong>. See you soon.
-            </p>
-            <a routerLink="/" class="btn btn-outline" style="margin-top:1.5rem">
-              Back to home
-            </a>
-          </div>
         }
 
         <!-- Sidebar trust signals -->
@@ -461,6 +474,21 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       font-size: 0.8125rem;
     }
 
+    .book-languages { border: none; min-width: 0; }
+
+    .book-zone {
+      font-size: 0.8125rem;
+      color: var(--color-text-muted);
+    }
+
+    .book-empty {
+      padding: var(--space-lg);
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius-md);
+      color: var(--color-text-muted);
+      text-align: center;
+    }
+
     .submit-btn {
       width: 100%;
       padding: 0.875rem;
@@ -538,77 +566,103 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       margin-bottom: var(--space-md);
     }
 
+    .success-state__home { margin-top: var(--space-lg); }
+
     .success-state__body {
       font-size: 1.0625rem;
       color: var(--color-text-muted);
     }
   `,
 })
-export class BookComponent implements OnInit {
-  protected readonly step            = signal<BookingStep>('form');
-  protected readonly isSubmitting    = signal(false);
-  protected readonly confirmedEmail  = signal('');
-  protected readonly selectedSlot    = signal<CalendarSelection | null>(null);
-  protected readonly calendarTouched = signal(false);
+export class BookComponent {
+  private readonly gateway = inject(BookingGateway);
+  private readonly languagesGateway = inject(LanguagesGateway);
+  private readonly destroyRef = inject(DestroyRef);
 
-  protected bookingForm!: FormGroup;
+  protected readonly price = PRICE;
+  protected readonly paymentsEnabled = environment.paymentsEnabled;
+  protected readonly lookaheadDays = LOOKAHEAD_DAYS;
+  protected readonly nameMin = NAME_LENGTH.min;
+  protected readonly nameMax = NAME_LENGTH.max;
+  protected readonly notesMax = NOTES_MAX;
 
-  constructor(private readonly fb: FormBuilder) {}
+  protected readonly form = inject(NonNullableFormBuilder).group({
+    languages: [[] as readonly string[], (control: { value: readonly string[] }) => (control.value.length ? null : { required: true })],
+    name: ['', [Validators.required, Validators.minLength(NAME_LENGTH.min), Validators.maxLength(NAME_LENGTH.max)]],
+    email: ['', [Validators.required, Validators.pattern(EMAIL_PATTERN)]],
+    notes: ['', Validators.maxLength(NOTES_MAX)],
+    consent: [false, Validators.requiredTrue],
+  });
 
-  ngOnInit(): void {
-    this.bookingForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(80)]],
-      email: ['', [Validators.required, Validators.pattern(EMAIL_PATTERN)]],
-      notes: ['', Validators.maxLength(500)],
-      consent: [false, Validators.requiredTrue],
-    });
+  protected readonly languages = rxResource({ stream: () => this.languagesGateway.getLanguages() });
+  protected readonly chosenLanguages = toSignal(this.form.controls.languages.valueChanges, {
+    initialValue: [] as readonly string[],
+  });
+  private readonly notes = toSignal(this.form.controls.notes.valueChanges, { initialValue: '' });
+  protected readonly notesLength = computed(() => this.notes().length);
+
+  /** The free hours for the chosen languages, from now to the end of the booking window. */
+  protected readonly hours = rxResource({
+    params: () => {
+      const languages = [...this.chosenLanguages()].sort();
+      return languages.length ? { languages } : undefined;
+    },
+    stream: ({ params }) =>
+      params ? this.gateway.getBookableHours(params.languages, new Date(Date.now() + LOOKAHEAD_DAYS * DAY_MS)) : of([]),
+  });
+
+  protected readonly start = signal<Date | null>(null);
+  /** The chosen time on the visitor's own clock, when that isn't India time. */
+  protected readonly localEquivalent = computed(() => {
+    const start = this.start();
+    return start && start.getTimezoneOffset() !== IST_OFFSET_MINUTES ? localWhen.format(start) : null;
+  });
+  protected readonly attempted = signal(false);
+  protected readonly submitting = signal(false);
+  protected readonly failure = signal<string | null>(null);
+  protected readonly confirmation = signal<BookingConfirmation | null>(null);
+  protected readonly bookedEmail = signal('');
+
+  protected isInvalid(field: keyof typeof this.form.controls): boolean {
+    const control = this.form.controls[field];
+    return control.invalid && control.touched;
   }
 
-  protected onCalendarChange(sel: CalendarSelection | null): void {
-    this.selectedSlot.set(sel);
-    if (sel) this.calendarTouched.set(true);
+  protected when(date: Date): string {
+    return `${longDay.format(date)} at ${clockTime.format(date)}`;
   }
 
-  protected isInvalid(field: string): boolean {
-    const ctrl = this.bookingForm.get(field);
-    return !!(ctrl?.invalid && ctrl.touched);
-  }
+  protected submit(): void {
+    if (this.submitting()) return;
+    this.attempted.set(true);
+    this.form.markAllAsTouched();
+    const start = this.start();
+    if (this.form.invalid || !start) return;
 
-  protected getError(field: string): string {
-    const ctrl = this.bookingForm.get(field);
-    if (!ctrl?.errors) return '';
-
-    if (field === 'name') {
-      if (ctrl.errors['required']) return 'Name is required.';
-      if (ctrl.errors['minlength']) return 'Name must be at least 2 characters.';
-      if (ctrl.errors['maxlength']) return 'Name is too long.';
-    }
-
-    if (field === 'email') {
-      if (ctrl.errors['required']) return 'Email is required.';
-      if (ctrl.errors['pattern']) return 'Please enter a valid email address.';
-    }
-
-    return 'This field is required.';
-  }
-
-  protected onSubmit(): void {
-    this.bookingForm.markAllAsTouched();
-    this.calendarTouched.set(true);
-
-    if (this.bookingForm.invalid || !this.selectedSlot() || this.isSubmitting()) return;
-
-    this.isSubmitting.set(true);
-
-    // Simulate async payment + booking submission
-    const email = this.bookingForm.get('email')!.value as string;
-
-    setTimeout(() => {
-      this.confirmedEmail.set(email);
-      this.step.set('success');
-      this.isSubmitting.set(false);
-      // Scroll to top of section smoothly
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 1500);
+    const { name, email, languages, notes } = this.form.getRawValue();
+    this.submitting.set(true);
+    this.failure.set(null);
+    this.gateway
+      .book({ name: name.trim(), email: email.trim().toLowerCase(), start, languages, notes: notes.trim() || null })
+      .pipe(
+        finalize(() => this.submitting.set(false)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (booked) => {
+          this.bookedEmail.set(email.trim());
+          this.confirmation.set(booked);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        },
+        error: (error: unknown) => {
+          const code = error instanceof ApiError ? error.code : 'UNKNOWN';
+          this.failure.set(FAILURES[code] ?? 'Something went wrong. Please try again.');
+          // The hour has gone: show what's free now.
+          if (code === 'TIME_NOT_AVAILABLE' || code === 'INVALID_SLOT_TIME') {
+            this.start.set(null);
+            this.hours.reload();
+          }
+        },
+      });
   }
 }

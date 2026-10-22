@@ -1,77 +1,52 @@
+import { ChangeDetectionStrategy, Component, computed, effect, input, model, signal, untracked } from '@angular/core';
 import {
-  ChangeDetectionStrategy,
-  Component,
-  EventEmitter,
-  Output,
-  computed,
-  signal,
-} from '@angular/core';
-import { DatePipe } from '@angular/common';
+  CivilDate,
+  addMonths,
+  dayOfMonth,
+  isSameMonth,
+  monthWeeks,
+  portalToday,
+  startOf,
+  startOfMonth,
+} from '../../core/time/civil-date';
+import { PORTAL_TIME_ZONE, formatLongDate, portalDay } from '../../core/time/portal-time';
 
-export interface CalendarSelection {
-  date: Date;
-  time: string; // "HH:MM"
+/** An hour that can be booked. */
+export interface PickableHour {
+  readonly start: Date;
 }
 
 interface CalendarDay {
-  date: Date;
-  inMonth: boolean;
-  isToday: boolean;
-  isPast: boolean;
+  readonly date: CivilDate;
+  readonly inMonth: boolean;
+  readonly isToday: boolean;
+  /** Has at least one bookable hour. */
+  readonly free: boolean;
 }
 
-const TIME_SLOTS = [
-  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
-  '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
-  '16:00', '16:30', '17:00', '17:30',
-];
+const DAY_NAMES = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
-const DAY_NAMES   = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-const MONTH_NAMES = [
-  'January','February','March','April','May','June',
-  'July','August','September','October','November','December',
-];
-
-function isSameDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() &&
-         a.getMonth()    === b.getMonth()    &&
-         a.getDate()     === b.getDate();
-}
+const monthFormat = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric', timeZone: PORTAL_TIME_ZONE });
+const shortDayFormat = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short', timeZone: PORTAL_TIME_ZONE });
+const timeFormat = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone: PORTAL_TIME_ZONE });
 
 @Component({
   selector: 'app-calendar-picker',
   standalone: true,
-  imports: [DatePipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="cal" role="group" aria-label="Pick a date and time">
-
       <div class="cal__layout">
-
-        <!-- ── LEFT: Month grid ── -->
         <div class="cal__left">
           <div class="cal__header">
-            <button type="button" class="cal__nav-btn"
-              (click)="prevMonth()" [disabled]="isPrevDisabled()"
-              aria-label="Previous month">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2.5"
-                   stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="15 18 9 12 15 6"/>
-              </svg>
+            <button type="button" class="cal__nav-btn" (click)="moveMonth(-1)" [disabled]="!canGoBack()" aria-label="Previous month">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
             </button>
-
-            <span class="cal__month-label" aria-live="polite">
-              {{ monthLabel() }}
-            </span>
-
-            <button type="button" class="cal__nav-btn"
-              (click)="nextMonth()" aria-label="Next month">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="2.5"
-                   stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="9 18 15 12 9 6"/>
-              </svg>
+            <span class="cal__month-label" aria-live="polite">{{ monthLabel() }}</span>
+            <button type="button" class="cal__nav-btn" (click)="moveMonth(1)" [disabled]="!canGoForward()" aria-label="Next month">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                   stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
           </div>
 
@@ -81,67 +56,57 @@ function isSameDay(a: Date, b: Date): boolean {
             }
           </div>
 
-          <div class="cal__grid" role="grid" [attr.aria-label]="monthLabel()">
-            @for (day of days(); track day.date.toISOString()) {
+          <div class="cal__grid">
+            @for (day of days(); track day.date) {
               <button
-                type="button" role="gridcell" class="cal__day"
+                type="button"
+                class="cal__day"
                 [class.cal__day--other]="!day.inMonth"
                 [class.cal__day--today]="day.isToday"
-                [class.cal__day--past]="day.isPast"
-                [class.cal__day--selected]="isSelected(day.date)"
-                [disabled]="day.isPast || !day.inMonth"
-                [attr.aria-label]="day.date | date:'EEEE, MMMM d, y'"
-                [attr.aria-pressed]="isSelected(day.date)"
+                [class.cal__day--past]="!day.free && day.inMonth"
+                [class.cal__day--free]="day.free && day.inMonth"
+                [class.cal__day--selected]="day.date === shownDay()"
+                [disabled]="!day.free || !day.inMonth"
+                [attr.aria-label]="describeDay(day)"
+                [attr.aria-pressed]="day.date === shownDay()"
                 [attr.aria-current]="day.isToday ? 'date' : null"
-                (click)="selectDate(day.date)"
-              >{{ day.date.getDate() }}</button>
+                (click)="showDay(day.date)"
+              >{{ dayNumber(day.date) }}</button>
             }
           </div>
         </div>
 
-        <!-- ── RIGHT: Time slots ── -->
         <div class="cal__right">
-          @if (selectedDate()) {
-            <p class="cal__times-label">
-              <strong>{{ selectedDate()! | date:'EEE, MMM d' }}</strong>
-            </p>
-            <div class="cal__times-list" role="group" aria-label="Available time slots">
-              @for (slot of timeSlots; track slot) {
-                <button type="button" class="cal__slot"
-                  [class.cal__slot--selected]="selectedTime() === slot"
-                  [attr.aria-pressed]="selectedTime() === slot"
-                  (click)="selectTime(slot)">
-                  {{ formatTime(slot) }}
-                </button>
+          @if (dayHours().length) {
+            <p class="cal__times-label"><strong>{{ shownDayLabel() }}</strong></p>
+            <div class="cal__times-list" role="group" aria-label="Free times">
+              @for (hour of dayHours(); track hour.start.getTime()) {
+                <button
+                  type="button"
+                  class="cal__slot"
+                  [class.cal__slot--selected]="hour.start.getTime() === selected()?.getTime()"
+                  [attr.aria-pressed]="hour.start.getTime() === selected()?.getTime()"
+                  (click)="selected.set(hour.start)"
+                >{{ time(hour.start) }}</button>
               }
             </div>
           } @else {
             <div class="cal__empty" aria-hidden="true">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                   stroke="currentColor" stroke-width="1.5"
-                   stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               <p>Select a date<br>to see times</p>
             </div>
           }
         </div>
-
       </div>
 
-      <!-- Summary chip -->
-      @if (selectedDate() && selectedTime()) {
+      @if (selected(); as chosen) {
         <div class="cal__summary" role="status" aria-live="polite">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2.5"
-               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="20 6 9 17 4 12"/>
-          </svg>
-          {{ selectedDate()! | date:'EEEE, MMMM d' }} at {{ formatTime(selectedTime()!) }}
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          {{ summary(chosen) }}
         </div>
       }
-
     </div>
   `,
   styles: `
@@ -155,7 +120,7 @@ function isSameDay(a: Date, b: Date): boolean {
     /* ── Two-column layout ────────────────────── */
     .cal__layout {
       display: grid;
-      grid-template-columns: 1fr 148px;
+      grid-template-columns: minmax(0, 1fr) 11rem;
       gap: 0;
       align-items: start;
       border: 1px solid var(--color-border);
@@ -264,6 +229,11 @@ function isSameDay(a: Date, b: Date): boolean {
     .cal__day--other   { color: var(--color-text-subtle); opacity: 0.3; }
     .cal__day--today:not(.cal__day--selected) { font-weight: 700; color: var(--color-green); }
     .cal__day--past    { color: var(--color-text-subtle); opacity: 0.3; }
+    .cal__day--free:not(.cal__day--selected) {
+      font-weight: 600;
+      color: var(--color-green);
+      background-color: var(--color-green-light);
+    }
     .cal__day--selected {
       background-color: var(--color-green) !important;
       color: var(--color-text-inverse) !important;
@@ -306,10 +276,15 @@ function isSameDay(a: Date, b: Date): boolean {
 
     /* Scrollable single-column slot list */
     .cal__times-list {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: 1fr;
       gap: 0.3rem;
-      max-height: 240px;
+      max-height: 280px;
+
+      @media (max-width: 520px) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        max-height: none;
+      }
       overflow-y: auto;
       scrollbar-width: thin;
       scrollbar-color: var(--color-border) transparent;
@@ -321,9 +296,9 @@ function isSameDay(a: Date, b: Date): boolean {
       border: 1px solid var(--color-border);
       border-radius: var(--radius-md);
       background: var(--color-surface);
-      font-size: 0.75rem;
+      font-size: 0.8125rem;
       font-family: var(--font-sans);
-      color: var(--color-text-muted);
+      color: var(--color-text);
       cursor: pointer;
       text-align: center;
       white-space: nowrap;
@@ -380,101 +355,91 @@ function isSameDay(a: Date, b: Date): boolean {
   `,
 })
 export class CalendarPickerComponent {
-  @Output() readonly selectionChange = new EventEmitter<CalendarSelection | null>();
+  /** Every bookable hour, in order. */
+  readonly hours = input.required<readonly PickableHour[]>();
+  readonly selected = model<Date | null>(null);
 
-  protected readonly dayNames  = DAY_NAMES;
-  protected readonly timeSlots = TIME_SLOTS;
+  protected readonly dayNames = DAY_NAMES;
+  private readonly today = portalToday(new Date());
 
-  private readonly today  = new Date();
-  private readonly cursor = signal(new Date(this.today.getFullYear(), this.today.getMonth(), 1));
+  /** Hours grouped by their day in India. */
+  private readonly byDay = computed(() => {
+    const groups = new Map<CivilDate, PickableHour[]>();
+    for (const hour of this.hours()) {
+      const day = portalDay(hour.start);
+      groups.set(day, [...(groups.get(day) ?? []), hour]);
+    }
+    return groups;
+  });
 
-  protected readonly selectedDate = signal<Date | null>(null);
-  protected readonly selectedTime = signal<string | null>(null);
+  private readonly firstMonth = computed(() => startOfMonth(portalDay(this.hours()[0]?.start ?? new Date())));
+  private readonly lastMonth = computed(() => startOfMonth(portalDay(this.hours().at(-1)?.start ?? new Date())));
 
-  protected readonly monthLabel = computed(() =>
-    `${MONTH_NAMES[this.cursor().getMonth()]} ${this.cursor().getFullYear()}`
+  private readonly cursor = signal<CivilDate>(startOfMonth(this.today));
+  private readonly chosenDay = signal<CivilDate | null>(null);
+
+  /** The day whose hours are listed: the one picked, if it still has any. */
+  protected readonly shownDay = computed(() => {
+    const chosen = this.chosenDay();
+    return chosen && this.byDay().has(chosen) ? chosen : null;
+  });
+  protected readonly dayHours = computed(() => this.byDay().get(this.shownDay() ?? '') ?? []);
+  protected readonly shownDayLabel = computed(() => {
+    const first = this.dayHours()[0];
+    return first ? shortDayFormat.format(first.start) : '';
+  });
+
+  protected readonly monthLabel = computed(() => monthFormat.format(startOf(this.cursor())));
+  protected readonly canGoBack = computed(() => this.cursor() > this.firstMonth());
+  protected readonly canGoForward = computed(() => this.cursor() < this.lastMonth());
+
+  protected readonly days = computed<CalendarDay[]>(() =>
+    monthWeeks(this.cursor())
+      .flat()
+      .map((date) => ({
+        date,
+        inMonth: isSameMonth(date, this.cursor()),
+        isToday: date === this.today,
+        free: this.byDay().has(date),
+      })),
   );
 
-  protected readonly isPrevDisabled = computed(() => {
-    const c = this.cursor();
-    return c.getFullYear() === this.today.getFullYear() &&
-           c.getMonth()    === this.today.getMonth();
-  });
-
-  protected readonly days = computed<CalendarDay[]>(() => {
-    const year  = this.cursor().getFullYear();
-    const month = this.cursor().getMonth();
-    const first = new Date(year, month, 1);
-    const last  = new Date(year, month + 1, 0);
-    const todayMidnight = new Date(
-      this.today.getFullYear(), this.today.getMonth(), this.today.getDate()
-    );
-
-    const cells: CalendarDay[] = [];
-
-    // Pad start
-    for (let i = 0; i < first.getDay(); i++) {
-      const d = new Date(year, month, -first.getDay() + i + 1);
-      cells.push({ date: d, inMonth: false, isToday: false, isPast: true });
-    }
-
-    // Current month
-    for (let d = 1; d <= last.getDate(); d++) {
-      const date = new Date(year, month, d);
-      cells.push({
-        date,
-        inMonth: true,
-        isToday: isSameDay(date, this.today),
-        isPast:  date < todayMidnight,
+  constructor() {
+    // New hours (e.g. other languages): open the first month that has any, and drop a choice that's gone.
+    effect(() => {
+      const hours = this.hours();
+      const firstMonth = this.firstMonth();
+      untracked(() => {
+        this.cursor.set(firstMonth);
+        const chosen = this.selected();
+        if (chosen && !hours.some((h) => h.start.getTime() === chosen.getTime())) this.selected.set(null);
       });
-    }
-
-    // Pad end
-    const remaining = (7 - (cells.length % 7)) % 7;
-    for (let i = 1; i <= remaining; i++) {
-      cells.push({ date: new Date(year, month + 1, i), inMonth: false, isToday: false, isPast: false });
-    }
-
-    return cells;
-  });
-
-  protected prevMonth(): void {
-    const c = this.cursor();
-    this.cursor.set(new Date(c.getFullYear(), c.getMonth() - 1, 1));
+    });
   }
 
-  protected nextMonth(): void {
-    const c = this.cursor();
-    this.cursor.set(new Date(c.getFullYear(), c.getMonth() + 1, 1));
+  protected moveMonth(step: number): void {
+    this.cursor.set(addMonths(this.cursor(), step));
   }
 
-  protected selectDate(date: Date): void {
-    this.selectedDate.set(date);
-    this.selectedTime.set(null);
-    this.emit();
+  protected showDay(date: CivilDate): void {
+    this.chosenDay.set(date);
+    const chosen = this.selected();
+    if (chosen && portalDay(chosen) !== date) this.selected.set(null);
   }
 
-  protected selectTime(slot: string): void {
-    this.selectedTime.set(slot);
-    this.emit();
+  protected dayNumber(date: CivilDate): number {
+    return dayOfMonth(date);
   }
 
-  protected isSelected(date: Date): boolean {
-    const sel = this.selectedDate();
-    return !!sel && isSameDay(sel, date);
+  protected describeDay(day: CalendarDay): string {
+    return `${formatLongDate(startOf(day.date))}${day.free ? '' : ', no free times'}`;
   }
 
-  protected formatTime(slot: string): string {
-    const [hStr, mStr] = slot.split(':');
-    const h    = parseInt(hStr, 10);
-    const ampm = h < 12 ? 'AM' : 'PM';
-    const h12  = h % 12 || 12;
-    return `${h12}:${mStr} ${ampm}`;
+  protected time(date: Date): string {
+    return timeFormat.format(date);
   }
 
-  private emit(): void {
-    const date = this.selectedDate();
-    const time = this.selectedTime();
-    this.selectionChange.emit(date && time ? { date, time } : null);
+  protected summary(date: Date): string {
+    return `${formatLongDate(date)} at ${timeFormat.format(date)} IST`;
   }
 }
